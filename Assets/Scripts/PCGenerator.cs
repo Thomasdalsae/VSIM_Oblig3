@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[RequireComponent(typeof(TextAsset))]
 public class PCGenerator : MonoBehaviour
 {
     public TextAsset pointData;
@@ -9,22 +9,23 @@ public class PCGenerator : MonoBehaviour
 
     void Start()
     {
-        if (pointData != null)
+        if (pointData != null) // checking if there is a TextAsset
         {
-            string[] lines = pointData.text.Split('\n');
+            string[] lines = pointData.text.Split('\n'); // Split on each new line;
             
-            for (int i = 1; i < lines.Length; i++) // Start from the second line (index 1)
+            for (int i = 1; i < lines.Length; i++) 
             {
                 string line = lines[i];
-                string[] values = line.Split(' ');
+                string[] values = line.Split(' '); // Split on each space
 
                 if (values.Length >= 3)
                 {
+                    //Getting x y z value from txt
                     float x = float.Parse(values[0]);
                     float y = float.Parse(values[1]);
                     float z = float.Parse(values[2]);
                     Vector3 position = new Vector3(x * 5, y * 5, z * 5);
-                    Instantiate(pointPrefab, position, Quaternion.identity);
+                    Instantiate(pointPrefab, position, Quaternion.identity); // Make a sphere for each location
                 }
             }
         }

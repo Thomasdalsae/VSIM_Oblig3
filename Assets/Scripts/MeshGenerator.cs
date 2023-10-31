@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter))]
 public class MeshGenerator : MonoBehaviour
 {
+    
+    //Testing
     private Mesh mesh;
     
     private Vector3[] vertices;

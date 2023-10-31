@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class PCGenerator : MonoBehaviour
 {
-
     public TextAsset pointData;
-    [SerializeField]public GameObject pointPrefab;
-    // Start is called before the first frame update
+    [SerializeField] public GameObject pointPrefab;
+
     void Start()
     {
         if (pointData != null)
         {
             string[] lines = pointData.text.Split('\n');
-
-
-            foreach (string line in lines)
+            
+            for (int i = 1; i < lines.Length; i++) // Start from the second line (index 1)
             {
+                string line = lines[i];
                 string[] values = line.Split(' ');
+
                 if (values.Length >= 3)
                 {
                     float x = float.Parse(values[0]);
@@ -25,15 +25,8 @@ public class PCGenerator : MonoBehaviour
                     float z = float.Parse(values[2]);
                     Vector3 position = new Vector3(x * 5, y * 5, z * 5);
                     Instantiate(pointPrefab, position, Quaternion.identity);
-
                 }
             }
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

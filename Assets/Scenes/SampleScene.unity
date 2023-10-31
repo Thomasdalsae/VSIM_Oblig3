@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -235,7 +235,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &755071199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,13 +400,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40070605, y: -0, z: -0, w: 0.9162067}
-  m_LocalPosition: {x: 7.37, y: 10.26, z: -3.6}
+  m_LocalRotation: {x: 0.3450496, y: -0.617204, z: 0.3450496, w: 0.617204}
+  m_LocalPosition: {x: 6.3, y: 9.4, z: 2.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 47.245, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 58.415, y: -90, z: 0}
 --- !u!1 &1999651919
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,7 +423,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1999651920
 MonoBehaviour:
   m_ObjectHideFlags: 0

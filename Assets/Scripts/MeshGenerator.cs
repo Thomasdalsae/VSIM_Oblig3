@@ -10,23 +10,15 @@ public class MeshGenerator : MonoBehaviour
     private Mesh mesh;
     private Vector3[] vertices;
     private int[] triangles;
+
     public TextAsset textAsset;
-
-    public int xSize = 20;
-    public int zSize = 20;
-    public float rectangleSize = 1.0f;
-
-    // Create a flag to control Gizmo drawing
-    private bool shouldDrawGizmos = false;
-
+    public int gridSize = 5;  // Resolution in meters
+public int xCellCount = 5;  // Number of quads in the x direction
+public int zCellCount = 5;  // Number of quads in the z direction
     void Start()
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
-        // Initialize vertices and triangles arrays
-        vertices = new Vector3[(xSize + 1) * (zSize + 1)];
-        triangles = new int[xSize * zSize * 6];
-
         GetCoordFromFile(textAsset);
         CreateShape();
         UpdateMesh();
@@ -38,7 +30,6 @@ public class MeshGenerator : MonoBehaviour
         {
             string[] lines = textAsset.text.Split('\n');
 
-            // Initialize these variables to sensible defaults
             float minX = float.MaxValue;
             float minY = float.MaxValue;
             float maxX = float.MinValue;
@@ -59,20 +50,30 @@ public class MeshGenerator : MonoBehaviour
                 }
             }
 
-            // Calculate width and height
-            float width = maxX - minX;
-            float height = maxY - minY;
-            rectangleSize = Mathf.Min(width, height) / Mathf.Max(xSize, zSize);
-
+            // Calculate the bounding rectangle based on the data
             Vector2 bottomLeft = new Vector2(minX, minY);
-            Vector2 bottomRight = new Vector2(maxX, minY);
-            Vector2 topLeft = new Vector2(minX, maxY);
             Vector2 topRight = new Vector2(maxX, maxY);
 
-            Debug.Log("Bottom left: " + bottomLeft);
-            Debug.Log("Bottom right: " + bottomRight);
-            Debug.Log("Top left: " + topLeft);
-            Debug.Log("Top Right: " + topRight);
+            // Determine the size of the grid cells
+            float cellSize = gridSize;
+
+            // Calculate the number of grid cells in x and z directions
+            int xCellCount = Mathf.CeilToInt((topRight.x - bottomLeft.x) / cellSize);
+            int zCellCount = Mathf.CeilToInt((topRight.y - bottomLeft.y) / cellSize);
+
+            // Create the grid vertices
+            vertices = new Vector3[(xCellCount + 1) * (zCellCount + 1)];
+
+            for (int z = 0, i = 0; z <= zCellCount; z++)
+            {
+                for (int x = 0; x <= xCellCount; x++)
+                {
+                    float xPos = bottomLeft.x + x * cellSize;
+                    float zPos = bottomLeft.y + z * cellSize;
+                    vertices[i] = new Vector3(xPos, 0, zPos);
+                    i++;
+                }
+            }
         }
         catch (Exception e)
         {
@@ -80,112 +81,59 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    void CreateShape()
-    {
-        vertices = new Vector3[(xSize + 1) * (zSize + 1)];
-
-        for (int i = 0, z = 0; z <= zSize; z++)
-        {
-            for (int x = 0; x <= xSize; x++)
-            {
-                vertices[i] = new Vector3(x * rectangleSize, 0, z * rectangleSize);
-                i++;
-            }
-        }
-
-        triangles = new int[xSize * zSize * 6];
-        int vert = 0;
-        int tris = 0;
-
-        for (int z = 0; z < zSize; z++)
-        {
-            for (int x = 0; x < xSize; x++)
-            {
-                triangles[tris + 0] = vert + 0;
-                triangles[tris + 1] = vert + xSize + 1;
-                triangles[tris + 2] = vert + 1;
-                triangles[tris + 3] = vert + 1;
-                triangles[tris + 4] = vert + xSize + 1;
-                triangles[tris + 5] = vert + xSize + 2;
-                vert++;
-                tris += 6;
-            }
-
-            vert++;
-        }
-    }
+   void CreateShape()
+   {
+       // Calculate the size of each grid cell based on xCellCount and zCellCount
+       float cellSizeX = gridSize / xCellCount;
+       float cellSizeZ = gridSize / zCellCount;
+   
+       // Calculate the total number of vertices and triangles
+       int vertexCount = (xCellCount + 1) * (zCellCount + 1);
+       int triangleCount = xCellCount * zCellCount * 2 * 3;  // 2 triangles per quad, 3 vertices per triangle
+   
+       vertices = new Vector3[vertexCount];
+       triangles = new int[triangleCount];
+   
+       int vert = 0;
+       int tris = 0;
+   
+       for (int z = 0; z <= zCellCount; z++)
+       {
+           for (int x = 0; x <= xCellCount; x++)
+           {
+               float xPos = x * cellSizeX;
+               float zPos = z * cellSizeZ;
+               vertices[vert] = new Vector3(xPos, 0, zPos);
+   
+               // Define the triangles based on the current vertex and grid structure
+               if (x < xCellCount && z < zCellCount)
+               {
+                   int topLeft = vert;
+                   int topRight = vert + 1;
+                   int bottomLeft = vert + xCellCount + 1;
+                   int bottomRight = vert + xCellCount + 2;
+   
+                   triangles[tris + 0] = topLeft;
+                   triangles[tris + 1] = bottomLeft;
+                   triangles[tris + 2] = topRight;
+                   triangles[tris + 3] = topRight;
+                   triangles[tris + 4] = bottomLeft;
+                   triangles[tris + 5] = bottomRight;
+   
+                   tris += 6;
+               }
+   
+               vert++;
+           }
+       }
+   }
 
     void UpdateMesh()
     {
+        // This code remains the same as your existing UpdateMesh function.
         mesh.Clear();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
     }
-
-    // This method calculates the average heights
-    void CalculateAverageHeights()
-    {
-        if (vertices == null || xSize < 1 || zSize < 1)
-        {
-            return;
-        }
-    
-        int squareCount = xSize * zSize;
-        float[] averageHeights = new float[squareCount];
-    
-        for (int i = 0; i < squareCount; i++)
-        {
-            int xStart = i % xSize;
-            int zStart = i / xSize;
-    
-            float totalHeight = 0;
-            int pointCount = 0;
-    
-            for (int z = zStart; z < zStart + 1 && z < zSize; z++)
-            {
-                for (int x = xStart; x < xStart + 1 && x < xSize; x++)
-                {
-                    int dataPointIndex = x + z * (xSize + 1);
-    
-                    if (dataPointIndex >= 0 && dataPointIndex < vertices.Length)
-                    {
-                        totalHeight += vertices[dataPointIndex].y;
-                        pointCount++;
-                    }
-                }
-            }
-    
-            averageHeights[i] = pointCount > 0 ? totalHeight / pointCount : 0;
-        }
-      
-        // Draw Gizmos when the flag is set
-        if (shouldDrawGizmos)
-        {
-            DrawGizmos(averageHeights);
-        }
-    }
-
-    // This method is called in the Unity Editor when the scene view is being drawn
-    void OnDrawGizmos()
-    {
-        // Set the flag to true to enable Gizmo drawing
-        shouldDrawGizmos = true;
-        CalculateAverageHeights();
-        // Reset the flag to false to avoid Gizmo drawing during play mode
-        shouldDrawGizmos = false;
-    }
-
-    void DrawGizmos(float[] averageHeights)
-        {
-            for (int i = 0; i < zSize; i++)
-            {
-                for (int j = 0; j < xSize; j++)
-                {
-                    int squareIndex = j + i * xSize;
-                    Vector3 center = new Vector3(j * rectangleSize + rectangleSize / 2, averageHeights[squareIndex], i * rectangleSize + rectangleSize / 2);
-                    Gizmos.DrawSphere(center, 0.005f);
-                }
-            }
-        }
 }

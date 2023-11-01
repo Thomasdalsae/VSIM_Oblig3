@@ -10,34 +10,42 @@ public class MeshGenerator : MonoBehaviour
     private Mesh mesh;
     private Vector3[] vertices;
     private int[] triangles;
-    
-    public int xCellCount = 5;  // Number of quads in the x direction
-    public int zCellCount = 5;  // Number of quads in the z direction
+
+    public int xGridCellCount = 5;  // Number of grid cells in the x direction
+    public int zGridCellCount = 5;  // Number of grid cells in the z direction
 
     public TextAsset textAsset;
     public int gridSize = 5;  // Resolution in meters
 
-   
-void Start()
-{
-    mesh = new Mesh();
-    GetComponent<MeshFilter>().mesh = mesh;
-    GetCoordFromFile(textAsset);
-    UpdateMesh();
-}
+    // Desired visual scale
+    public float visualScale = 1.0f;
 
+    void Start()
+    {
+        mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+        if (textAsset != null)
+        {
+            GetCoordFromFile(textAsset);
+            UpdateMesh();
+        }
+        else
+        {
+            Debug.LogError("No TextAsset provided.");
+        }
+    }
 
     void GetCoordFromFile(TextAsset textAsset)
     {
         try
         {
             string[] lines = textAsset.text.Split('\n');
-    
+
             float minX = float.MaxValue;
             float minY = float.MaxValue;
             float maxX = float.MinValue;
             float maxY = float.MinValue;
-    
+
             foreach (var line in lines)
             {
                 string[] parts = line.Split(' ');
@@ -52,28 +60,25 @@ void Start()
                     }
                 }
             }
-    
+
             // Calculate the bounding rectangle based on the data
             Vector2 bottomLeft = new Vector2(minX, minY);
             Vector2 topRight = new Vector2(maxX, maxY);
-    
+
             // Determine the size of the grid cells
             float cellSize = gridSize;
-    
+
             // Calculate the number of grid cells in x and z directions
             int xCellCount = Mathf.CeilToInt((topRight.x - bottomLeft.x) / cellSize);
             int zCellCount = Mathf.CeilToInt((topRight.y - bottomLeft.y) / cellSize);
-    
+
             // Calculate the size of the rectangle based on data and desired scale
             float rectangleSizeX = (topRight.x - bottomLeft.x) / xCellCount;
             float rectangleSizeZ = (topRight.y - bottomLeft.y) / zCellCount;
-    
-            // Set the desired visual scale (e.g., 1 meter in data corresponds to 1 unit in the mesh)
-            float desiredVisualScale = 1.0f;
-    
+
             // Calculate the final rectangle size
-            float rectangleSize = Mathf.Max(rectangleSizeX, rectangleSizeZ) * desiredVisualScale;
-    
+            float rectangleSize = Mathf.Max(rectangleSizeX, rectangleSizeZ) * visualScale;
+
             // Use this rectangle size for creating the mesh
             CreateShape(rectangleSize);
         }
@@ -83,57 +88,52 @@ void Start()
         }
     }
 
-void CreateShape(float rectangleSize)
-{
-    // Calculate the size of each grid cell based on xCellCount and zCellCount
-    float cellSizeX = rectangleSize / xCellCount;
-    float cellSizeZ = rectangleSize / zCellCount;
-
-    // Calculate the total number of vertices and triangles
-    int vertexCount = (xCellCount + 1) * (zCellCount + 1);
-    int triangleCount = xCellCount * zCellCount * 2 * 3;  // 2 triangles per quad, 3 vertices per triangle
-
-    vertices = new Vector3[vertexCount];
-    triangles = new int[triangleCount];
-
-    int vert = 0;
-    int tris = 0;
-
-    for (int z = 0; z <= zCellCount; z++)
+    void CreateShape(float rectangleSize)
     {
-        for (int x = 0; x <= xCellCount; x++)
+        float cellSizeX = rectangleSize / xGridCellCount;
+        float cellSizeZ = rectangleSize / zGridCellCount;
+
+        int vertexCount = (xGridCellCount + 1) * (zGridCellCount + 1);
+        int triangleCount = xGridCellCount * zGridCellCount * 2 * 3;
+
+        vertices = new Vector3[vertexCount];
+        triangles = new int[triangleCount];
+
+        int vert = 0;
+        int tris = 0;
+
+        for (int z = 0; z <= zGridCellCount; z++)
         {
-            float xPos = x * cellSizeX;
-            float zPos = z * cellSizeZ;
-            vertices[vert] = new Vector3(xPos, 0, zPos);
-
-            // Define the triangles based on the current vertex and grid structure
-            if (x < xCellCount && z < zCellCount)
+            for (int x = 0; x <= xGridCellCount; x++)
             {
-                int topLeft = vert;
-                int topRight = vert + 1;
-                int bottomLeft = vert + xCellCount + 1;
-                int bottomRight = vert + xCellCount + 2;
+                float xPos = x * cellSizeX;
+                float zPos = z * cellSizeZ;
+                vertices[vert] = new Vector3(xPos, 0, zPos);
 
-                triangles[tris + 0] = topLeft;
-                triangles[tris + 1] = bottomLeft;
-                triangles[tris + 2] = topRight;
-                triangles[tris + 3] = topRight;
-                triangles[tris + 4] = bottomLeft;
-                triangles[tris + 5] = bottomRight;
+                if (x < xGridCellCount && z < zGridCellCount)
+                {
+                    int topLeft = vert;
+                    int topRight = vert + 1;
+                    int bottomLeft = vert + xGridCellCount + 1;
+                    int bottomRight = vert + xGridCellCount + 2;
 
-                tris += 6;
+                    triangles[tris + 0] = topLeft;
+                    triangles[tris + 1] = bottomLeft;
+                    triangles[tris + 2] = topRight;
+                    triangles[tris + 3] = topRight;
+                    triangles[tris + 4] = bottomLeft;
+                    triangles[tris + 5] = bottomRight;
+
+                    tris += 6;
+                }
+
+                vert++;
             }
-
-            vert++;
         }
     }
-}
-
 
     void UpdateMesh()
     {
-        // This code remains the same as your existing UpdateMesh function.
         mesh.Clear();
         mesh.vertices = vertices;
         mesh.triangles = triangles;

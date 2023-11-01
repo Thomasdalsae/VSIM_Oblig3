@@ -248,10 +248,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d85008cc06a05994bbc1f5d8766212fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  xCellCount: 5
+  zCellCount: 5
   textAsset: {fileID: 4900000, guid: 964e30cdba6e6494c838232adb6b46c7, type: 3}
-  gridSize: 40
-  xCellCount: 20
-  zCellCount: 20
+  gridSize: 10
 --- !u!33 &1380612636
 MeshFilter:
   m_ObjectHideFlags: 0

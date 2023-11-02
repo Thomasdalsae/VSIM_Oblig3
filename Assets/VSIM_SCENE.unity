@@ -248,10 +248,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d85008cc06a05994bbc1f5d8766212fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xCellCount: 5
-  zCellCount: 5
+  cubeSize: 1
+  cubePrefab: {fileID: 2216332752498366378, guid: 4e00f0fc10903704e97231525b167579, type: 3}
+  xGridCellCount: 10
+  zGridCellCount: 10
   textAsset: {fileID: 4900000, guid: 964e30cdba6e6494c838232adb6b46c7, type: 3}
-  gridSize: 10
+  gridSize: 1
+  visualScale: 1
 --- !u!33 &1380612636
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -409,6 +412,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1915277727
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1915277729}
+  - component: {fileID: 1915277728}
+  m_Layer: 0
+  m_Name: test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1915277728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915277727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb93fda3e340a394b990cf8db491d3b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pointData: {fileID: 4900000, guid: 964e30cdba6e6494c838232adb6b46c7, type: 3}
+  pointPrefab: {fileID: 6204084628371568029, guid: ae4429337a4cee248a4dcb450f57019a, type: 3}
+--- !u!4 &1915277729
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915277727}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -416,3 +465,4 @@ SceneRoots:
   - {fileID: 1494546435}
   - {fileID: 1002861608}
   - {fileID: 1380612637}
+  - {fileID: 1915277729}

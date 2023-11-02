@@ -10,12 +10,14 @@ public class MeshGenerator : MonoBehaviour
     private Mesh mesh;
     private Vector3[] vertices;
     private int[] triangles;
+    public float cubeSize = 0.005f;
+    public GameObject cubePrefab;
 
-    public int xGridCellCount = 5;  // Number of grid cells in the x direction
-    public int zGridCellCount = 5;  // Number of grid cells in the z direction
+    public int xGridCellCount = 5; // Number of grid cells in the x direction
+    public int zGridCellCount = 5; // Number of grid cells in the z direction
 
     public TextAsset textAsset;
-    public int gridSize = 5;  // Resolution in meters
+    public int gridSize = 5; // Resolution in meters
 
     // Desired visual scale
     public float visualScale = 1.0f;
@@ -35,102 +37,133 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    void GetCoordFromFile(TextAsset textAsset)
+   
+void GetCoordFromFile(TextAsset textAsset)
+{
+    try
     {
-        try
+        string[] lines = textAsset.text.Split('\n');
+        List<Vector3> Coords = new List<Vector3>();
+        List<Vector3> CenterPoints = new List<Vector3>();
+
+        float minX = float.MaxValue;
+        float minZ = float.MaxValue;
+        float maxX = float.MinValue;
+        float maxZ = float.MinValue;
+
+        foreach (var line in lines)
         {
-            string[] lines = textAsset.text.Split('\n');
-
-            float minX = float.MaxValue;
-            float minY = float.MaxValue;
-            float maxX = float.MinValue;
-            float maxY = float.MinValue;
-
-            foreach (var line in lines)
+            string[] parts = line.Split(' ');
+            if (parts.Length >= 3)
             {
-                string[] parts = line.Split(' ');
-                if (parts.Length >= 2)
+                if (float.TryParse(parts[0], out float x) && float.TryParse(parts[1], out float y) &&
+                    float.TryParse(parts[2], out float z))
                 {
-                    if (float.TryParse(parts[0], out float x) && float.TryParse(parts[1], out float y))
-                    {
-                        minX = Mathf.Min(minX, x);
-                        minY = Mathf.Min(minY, y);
-                        maxX = Mathf.Max(maxX, x);
-                        maxY = Mathf.Max(maxY, y);
-                    }
+                    // Update min and max values and add the vertex to Coords
+                    minX = Mathf.Min(minX, x);
+                    minZ = Mathf.Min(minZ, z);
+                    maxX = Mathf.Max(maxX, x);
+                    maxZ = Mathf.Max(maxZ, z);
+                    Vector3 temp = new Vector3(x, y, z);
+                    Coords.Add(temp);
                 }
             }
-
-            // Calculate the bounding rectangle based on the data
-            Vector2 bottomLeft = new Vector2(minX, minY);
-            Vector2 topRight = new Vector2(maxX, maxY);
-
-            // Determine the size of the grid cells
-            float cellSize = gridSize;
-
-            // Calculate the number of grid cells in x and z directions
-            int xCellCount = Mathf.CeilToInt((topRight.x - bottomLeft.x) / cellSize);
-            int zCellCount = Mathf.CeilToInt((topRight.y - bottomLeft.y) / cellSize);
-
-            // Calculate the size of the rectangle based on data and desired scale
-            float rectangleSizeX = (topRight.x - bottomLeft.x) / xCellCount;
-            float rectangleSizeZ = (topRight.y - bottomLeft.y) / zCellCount;
-
-            // Calculate the final rectangle size
-            float rectangleSize = Mathf.Max(rectangleSizeX, rectangleSizeZ) * visualScale;
-
-            // Use this rectangle size for creating the mesh
-            CreateShape(rectangleSize);
         }
-        catch (Exception e)
-        {
-            Debug.LogError("Error reading file: " + e.Message);
-        }
+
+        // Calculate the bounding rectangle based on the data
+        Vector2 bottomLeft = new Vector2(minX, minZ);
+        Vector2 topRight = new Vector2(maxX, maxZ);
+
+        // Calculate the number of grid cells in x and z directions
+        int xCellCount = Mathf.CeilToInt((topRight.x - bottomLeft.x) / gridSize);
+        int zCellCount = Mathf.CeilToInt((topRight.y - bottomLeft.y) / gridSize);
+
+        // Calculate the size of the rectangle based on data and desired scale
+        float rectangleSizeX = (topRight.x - bottomLeft.x) / xCellCount;
+        float rectangleSizeZ = (topRight.y - bottomLeft.y) / zCellCount;
+
+        // Calculate the final rectangle size
+        float rectangleSize = Mathf.Max(rectangleSizeX, rectangleSizeZ) * visualScale;
+
+        // Use this rectangle size for creating the mesh
+        CreateShape(rectangleSize);
     }
-
-    void CreateShape(float rectangleSize)
+    catch (Exception e)
     {
-        float cellSizeX = rectangleSize / xGridCellCount;
-        float cellSizeZ = rectangleSize / zGridCellCount;
+        Debug.LogError("Error reading file: " + e.Message);
+    }
+}
 
-        int vertexCount = (xGridCellCount + 1) * (zGridCellCount + 1);
-        int triangleCount = xGridCellCount * zGridCellCount * 2 * 3;
 
-        vertices = new Vector3[vertexCount];
-        triangles = new int[triangleCount];
+   
+void CreateShape(float rectangleSize)
+{
+    // Calculate cell sizes based on the provided rectangleSize and visualScale
+    float cellSizeX = rectangleSize / xGridCellCount;
+    float cellSizeZ = rectangleSize / zGridCellCount;
 
-        int vert = 0;
-        int tris = 0;
+    int vertexCount = (xGridCellCount + 1) * (zGridCellCount + 1);
+    int triangleCount = xGridCellCount * zGridCellCount * 2 * 3;
 
-        for (int z = 0; z <= zGridCellCount; z++)
+    vertices = new Vector3[vertexCount];
+    triangles = new int[triangleCount];
+
+    int vert = 0;
+    int tris = 0;
+
+    for (int z = 0; z <= zGridCellCount; z++)
+    {
+        for (int x = 0; x <= xGridCellCount; x++)
         {
-            for (int x = 0; x <= xGridCellCount; x++)
+            // Calculate the position of each vertex based on the adjusted cell sizes
+            float xPos = x * cellSizeX;
+            float zPos = z * cellSizeZ;
+            vertices[vert] = new Vector3(xPos, 0, zPos);
+
+            if (x < xGridCellCount && z < zGridCellCount)
             {
-                float xPos = x * cellSizeX;
-                float zPos = z * cellSizeZ;
-                vertices[vert] = new Vector3(xPos, 0, zPos);
+                int topLeft = vert;
+                int topRight = vert + 1;
+                int bottomLeft = vert + xGridCellCount + 1;
+                int bottomRight = vert + xGridCellCount + 2;
 
-                if (x < xGridCellCount && z < zGridCellCount)
-                {
-                    int topLeft = vert;
-                    int topRight = vert + 1;
-                    int bottomLeft = vert + xGridCellCount + 1;
-                    int bottomRight = vert + xGridCellCount + 2;
+                triangles[tris + 0] = topLeft;
+                triangles[tris + 1] = bottomLeft;
+                triangles[tris + 2] = topRight;
+                triangles[tris + 3] = topRight;
+                triangles[tris + 4] = bottomLeft;
+                triangles[tris + 5] = bottomRight;
 
-                    triangles[tris + 0] = topLeft;
-                    triangles[tris + 1] = bottomLeft;
-                    triangles[tris + 2] = topRight;
-                    triangles[tris + 3] = topRight;
-                    triangles[tris + 4] = bottomLeft;
-                    triangles[tris + 5] = bottomRight;
+                // Calculate the center position of the square
+                float centerX = xPos + (cellSizeX / 2);
+                float centerZ = zPos + (cellSizeZ / 2);
 
-                    tris += 6;
-                }
+                // Instantiate a cube at the center
+                InstantiateCube(new Vector3(centerX, 0, centerZ));
 
-                vert++;
+                tris += 6;
             }
+
+            vert++;
         }
     }
+}
+
+
+
+   
+   void InstantiateCube(Vector3 position)
+   {
+       if (cubePrefab != null)
+       {
+           GameObject cube = Instantiate(cubePrefab, position, Quaternion.identity);
+           // You can further configure the instantiated cube, e.g., scale or material
+       }
+       else
+       {
+           Debug.LogError("Cube prefab is not assigned.");
+       }
+   }
 
     void UpdateMesh()
     {

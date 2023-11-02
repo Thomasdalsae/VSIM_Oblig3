@@ -38,6 +38,48 @@ public class MeshGenerator : MonoBehaviour
     }
 
    
+void CalculateAverageHeightForSquares(List<Vector3> Coords)
+{
+    for (int z = 0; z < zGridCellCount; z++)
+    {
+        for (int x = 0; x < xGridCellCount; x++)
+        {
+            // Define the boundaries of the current square
+            float minX = x * (visualScale * gridSize);
+            float maxX = Mathf.Min((x + 1) * (visualScale * gridSize), (xGridCellCount * visualScale * gridSize));
+            float minZ = z * (visualScale * gridSize);
+            float maxZ = Mathf.Min((z + 1) * (visualScale * gridSize), (zGridCellCount * visualScale * gridSize));
+
+            float totalHeight = 0.0f;
+            int pointCount = 0;
+
+            // Calculate the average height of data points inside the square
+            for (int i = 0; i < Coords.Count; i++)
+            {
+                Vector3 point = Coords[i];
+
+                if (point.x >= minX && point.x < maxX && point.z >= minZ && point.z < maxZ)
+                {
+                    totalHeight += point.y;
+                    pointCount++;
+                }
+            }
+
+            if (pointCount > 0)
+            {
+                float averageHeight = totalHeight / pointCount;
+                float xPos = (x * visualScale * gridSize) + (visualScale * gridSize * 0.5f);
+                float zPos = (z * visualScale * gridSize) + (visualScale * gridSize * 0.5f);
+
+                // Instantiate a cube at the center of the square with the average height
+                Vector3 cubePosition = new Vector3(xPos, averageHeight, zPos);
+                InstantiateCube(cubePosition);
+            }
+        }
+    }
+}
+
+
 void GetCoordFromFile(TextAsset textAsset)
 {
     try
@@ -85,6 +127,7 @@ void GetCoordFromFile(TextAsset textAsset)
         // Calculate the final rectangle size
         float rectangleSize = Mathf.Max(rectangleSizeX, rectangleSizeZ) * visualScale;
 
+        CalculateAverageHeightForSquares(Coords);
         // Use this rectangle size for creating the mesh
         CreateShape(rectangleSize);
     }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Linq;
 
 [RequireComponent(typeof(MeshFilter))]
 public class MeshGenerator : MonoBehaviour
@@ -38,46 +39,7 @@ public class MeshGenerator : MonoBehaviour
     }
 
    
-void CalculateAverageHeightForSquares(List<Vector3> Coords)
-{
-    for (int z = 0; z < zGridCellCount; z++)
-    {
-        for (int x = 0; x < xGridCellCount; x++)
-        {
-            // Define the boundaries of the current square
-            float minX = x * (visualScale * gridSize);
-            float maxX = Mathf.Min((x + 1) * (visualScale * gridSize), (xGridCellCount * visualScale * gridSize));
-            float minZ = z * (visualScale * gridSize);
-            float maxZ = Mathf.Min((z + 1) * (visualScale * gridSize), (zGridCellCount * visualScale * gridSize));
 
-            float totalHeight = 0.0f;
-            int pointCount = 0;
-
-            // Calculate the average height of data points inside the square
-            for (int i = 0; i < Coords.Count; i++)
-            {
-                Vector3 point = Coords[i];
-
-                if (point.x >= minX && point.x < maxX && point.z >= minZ && point.z < maxZ)
-                {
-                    totalHeight += point.y;
-                    pointCount++;
-                }
-            }
-
-            if (pointCount > 0)
-            {
-                float averageHeight = totalHeight / pointCount;
-                float xPos = (x * visualScale * gridSize) + (visualScale * gridSize * 0.5f);
-                float zPos = (z * visualScale * gridSize) + (visualScale * gridSize * 0.5f);
-
-                // Instantiate a cube at the center of the square with the average height
-                Vector3 cubePosition = new Vector3(xPos, averageHeight, zPos);
-                //InstantiateCube(cubePosition);
-            }
-        }
-    }
-}
 
 
 void GetCoordFromFile(TextAsset textAsset)
@@ -86,7 +48,6 @@ void GetCoordFromFile(TextAsset textAsset)
     {
         string[] lines = textAsset.text.Split('\n');
         List<Vector3> Coords = new List<Vector3>();
-        List<Vector3> CenterPoints = new List<Vector3>();
 
         float minX = float.MaxValue;
         float minZ = float.MaxValue;
@@ -112,24 +73,19 @@ void GetCoordFromFile(TextAsset textAsset)
             }
         }
 
-        // Calculate the bounding rectangle based on the data
-        Vector2 bottomLeft = new Vector2(minX, minZ);
-        Vector2 topRight = new Vector2(maxX, maxZ);
-
         // Calculate the number of grid cells in x and z directions
-        int xCellCount = Mathf.CeilToInt((topRight.x - bottomLeft.x) / gridSize);
-        int zCellCount = Mathf.CeilToInt((topRight.y - bottomLeft.y) / gridSize);
+        xGridCellCount = Mathf.CeilToInt((maxX - minX) / gridSize);
+        zGridCellCount = Mathf.CeilToInt((maxZ - minZ) / gridSize);
 
         // Calculate the size of the rectangle based on data and desired scale
-        float rectangleSizeX = (topRight.x - bottomLeft.x) / xCellCount;
-        float rectangleSizeZ = (topRight.y - bottomLeft.y) / zCellCount;
+        float rectangleSizeX = (maxX - minX) / xGridCellCount;
+        float rectangleSizeZ = (maxZ - minZ) / zGridCellCount;
 
         // Calculate the final rectangle size
         float rectangleSize = Mathf.Max(rectangleSizeX, rectangleSizeZ) * visualScale;
 
-        CalculateAverageHeightForSquares(Coords);
         // Use this rectangle size for creating the mesh
-        CreateShape(rectangleSize,Coords);
+        CreateShape(Coords);
     }
     catch (Exception e)
     {
@@ -138,16 +94,11 @@ void GetCoordFromFile(TextAsset textAsset)
 }
 
 
-   
-
-
-
-
-void CreateShape(float rectangleSize,List<Vector3> Coords)
+void CreateShape(List<Vector3> Coords)
 {
-    // Calculate cell sizes based on the provided rectangleSize and visualScale
-    float cellSizeX = rectangleSize / xGridCellCount;
-    float cellSizeZ = rectangleSize / zGridCellCount;
+    // Calculate cell sizes based on the provided xGridCellCount and zGridCellCount
+    float cellSizeX = (Coords.Max(v => v.x) - Coords.Min(v => v.x)) / xGridCellCount;
+    float cellSizeZ = (Coords.Max(v => v.z) - Coords.Min(v => v.z)) / zGridCellCount;
 
     int vertexCount = (xGridCellCount + 1) * (zGridCellCount + 1);
     int triangleCount = xGridCellCount * zGridCellCount * 2 * 3;
@@ -163,8 +114,8 @@ void CreateShape(float rectangleSize,List<Vector3> Coords)
         for (int x = 0; x <= xGridCellCount; x++)
         {
             // Calculate the position of each vertex based on the adjusted cell sizes
-            float xPos = x * cellSizeX - (rectangleSize / 2); // Adjust the x position
-            float zPos = z * cellSizeZ - (rectangleSize / 2); // Adjust the z position
+            float xPos = x * cellSizeX + Coords.Min(v => v.x);
+            float zPos = z * cellSizeZ + Coords.Min(v => v.z);
 
             // Calculate the center position of the square
             float centerX = xPos + (cellSizeX / 2);
@@ -221,6 +172,7 @@ void CreateShape(float rectangleSize,List<Vector3> Coords)
 
     UpdateMesh();
 }
+
 
 
 

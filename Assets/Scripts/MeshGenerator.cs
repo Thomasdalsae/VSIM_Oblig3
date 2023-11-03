@@ -142,6 +142,7 @@ void GetCoordFromFile(TextAsset textAsset)
 
 
 
+
 void CreateShape(float rectangleSize)
 {
     // Calculate cell sizes based on the provided rectangleSize and visualScale
@@ -162,9 +163,18 @@ void CreateShape(float rectangleSize)
         for (int x = 0; x <= xGridCellCount; x++)
         {
             // Calculate the position of each vertex based on the adjusted cell sizes
-            float xPos = x * cellSizeX;
-            float zPos = z * cellSizeZ;
-            vertices[vert] = new Vector3(xPos, 0, zPos);
+            float xPos = x * cellSizeX - (rectangleSize / 2); // Adjust the x position
+            float zPos = z * cellSizeZ - (rectangleSize / 2); // Adjust the z position
+
+            // Calculate the center position of the square
+            float centerX = xPos + (cellSizeX / 2);
+            float centerZ = zPos + (cellSizeZ / 2);
+
+            // You can calculate the average height for this square based on your data
+            // For simplicity, I'll assume a constant height of 0.5 for the center
+            float averageHeight = 0f;
+
+            vertices[vert] = new Vector3(centerX, averageHeight, centerZ);
 
             if (x < xGridCellCount && z < zGridCellCount)
             {
@@ -180,26 +190,25 @@ void CreateShape(float rectangleSize)
                 triangles[tris + 4] = bottomLeft;
                 triangles[tris + 5] = bottomRight;
 
-                // Calculate the center position of the square
-                float centerX = xPos + (cellSizeX / 2);
-                float centerZ = zPos + (cellSizeZ / 2);
-
-               
-                    InstantiateRedCube(new Vector3(xPos, 0, zPos));
-                    InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos));
-                    InstantiateRedCube(new Vector3(xPos, 0, zPos + cellSizeZ));
-                    InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos + cellSizeZ));
-
                 // Instantiate a cube at the center of the square
                 InstantiateCube(new Vector3(centerX, 0, centerZ));
-                
+               // InstantiateRedCube(new Vector3(centerX, averageHeight, centerZ)); // Instantiate a cube at the center
+                InstantiateRedCube(new Vector3(xPos, 0, zPos)); // Instantiate a cube at the corner
+                InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos)); // Instantiate a cube at the corner
+                InstantiateRedCube(new Vector3(xPos, 0, zPos + cellSizeZ)); // Instantiate a cube at the corner
+                InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos + cellSizeZ)); // Instantiate a cube at the corner
+
                 tris += 6;
             }
 
             vert++;
         }
     }
+
+    UpdateMesh();
 }
+
+
 
 
 

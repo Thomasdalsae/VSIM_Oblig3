@@ -73,7 +73,7 @@ void CalculateAverageHeightForSquares(List<Vector3> Coords)
 
                 // Instantiate a cube at the center of the square with the average height
                 Vector3 cubePosition = new Vector3(xPos, averageHeight, zPos);
-                InstantiateCube(cubePosition);
+                //InstantiateCube(cubePosition);
             }
         }
     }
@@ -139,6 +139,9 @@ void GetCoordFromFile(TextAsset textAsset)
 
 
    
+
+
+
 void CreateShape(float rectangleSize)
 {
     // Calculate cell sizes based on the provided rectangleSize and visualScale
@@ -181,14 +184,39 @@ void CreateShape(float rectangleSize)
                 float centerX = xPos + (cellSizeX / 2);
                 float centerZ = zPos + (cellSizeZ / 2);
 
-                // Instantiate a cube at the center
-                InstantiateCube(new Vector3(centerX, 0, centerZ));
+               
+                    InstantiateRedCube(new Vector3(xPos, 0, zPos));
+                    InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos));
+                    InstantiateRedCube(new Vector3(xPos, 0, zPos + cellSizeZ));
+                    InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos + cellSizeZ));
 
+                // Instantiate a cube at the center of the square
+                InstantiateCube(new Vector3(centerX, 0, centerZ));
+                
                 tris += 6;
             }
 
             vert++;
         }
+    }
+}
+
+
+
+
+
+
+void InstantiateRedCube(Vector3 position)
+{
+    // You can assign a red cube prefab to the cubePrefab field
+    if (cubePrefab != null)
+    {
+        GameObject cube = Instantiate(cubePrefab, position, Quaternion.identity);
+        cube.GetComponent<Renderer>().material.color = Color.red; // Set the cube color to red
+    }
+    else
+    {
+        Debug.LogError("Cube prefab is not assigned.");
     }
 }
 

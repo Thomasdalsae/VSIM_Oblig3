@@ -125,9 +125,9 @@ void CreateShape(List<Vector3> Coords)
             float totalHeight = 0f;
             int pointCount = 0;
 
-            for (int i = 0; i < Coords.Count; i++)
+            // Iterate through data points once and only consider those inside the current square
+            foreach (Vector3 point in Coords)
             {
-                Vector3 point = Coords[i];
                 if (point.x >= xPos && point.x < (xPos + cellSizeX) &&
                     point.z >= zPos && point.z < (zPos + cellSizeZ))
                 {
@@ -172,6 +172,8 @@ void CreateShape(List<Vector3> Coords)
 
     UpdateMesh();
 }
+
+
 
 
 

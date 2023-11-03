@@ -129,7 +129,7 @@ void GetCoordFromFile(TextAsset textAsset)
 
         CalculateAverageHeightForSquares(Coords);
         // Use this rectangle size for creating the mesh
-        CreateShape(rectangleSize);
+        CreateShape(rectangleSize,Coords);
     }
     catch (Exception e)
     {
@@ -143,7 +143,7 @@ void GetCoordFromFile(TextAsset textAsset)
 
 
 
-void CreateShape(float rectangleSize)
+void CreateShape(float rectangleSize,List<Vector3> Coords)
 {
     // Calculate cell sizes based on the provided rectangleSize and visualScale
     float cellSizeX = rectangleSize / xGridCellCount;
@@ -170,9 +170,22 @@ void CreateShape(float rectangleSize)
             float centerX = xPos + (cellSizeX / 2);
             float centerZ = zPos + (cellSizeZ / 2);
 
-            // You can calculate the average height for this square based on your data
-            // For simplicity, I'll assume a constant height of 0.5 for the center
-            float averageHeight = 0f;
+            // Calculate the average height for this square based on your data
+            float totalHeight = 0f;
+            int pointCount = 0;
+
+            for (int i = 0; i < Coords.Count; i++)
+            {
+                Vector3 point = Coords[i];
+                if (point.x >= xPos && point.x < (xPos + cellSizeX) &&
+                    point.z >= zPos && point.z < (zPos + cellSizeZ))
+                {
+                    totalHeight += point.y;
+                    pointCount++;
+                }
+            }
+
+            float averageHeight = (pointCount > 0) ? totalHeight / pointCount : 0f;
 
             vertices[vert] = new Vector3(centerX, averageHeight, centerZ);
 
@@ -190,13 +203,14 @@ void CreateShape(float rectangleSize)
                 triangles[tris + 4] = bottomLeft;
                 triangles[tris + 5] = bottomRight;
 
-                // Instantiate a cube at the center of the square
-                InstantiateCube(new Vector3(centerX, 0, centerZ));
-               // InstantiateRedCube(new Vector3(centerX, averageHeight, centerZ)); // Instantiate a cube at the center
-                InstantiateRedCube(new Vector3(xPos, 0, zPos)); // Instantiate a cube at the corner
-                InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos)); // Instantiate a cube at the corner
-                InstantiateRedCube(new Vector3(xPos, 0, zPos + cellSizeZ)); // Instantiate a cube at the corner
-                InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos + cellSizeZ)); // Instantiate a cube at the corner
+                // Place the blue cube at the center of the square with the average height
+                InstantiateBlueCube(new Vector3(centerX, averageHeight, centerZ));
+
+                // Instantiate red cubes at the corners of the square
+                InstantiateRedCube(new Vector3(xPos, 0, zPos)); // Bottom-left corner
+                InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos)); // Bottom-right corner
+                InstantiateRedCube(new Vector3(xPos, 0, zPos + cellSizeZ)); // Top-left corner
+                InstantiateRedCube(new Vector3(xPos + cellSizeX, 0, zPos + cellSizeZ)); // Top-right corner
 
                 tris += 6;
             }
@@ -207,6 +221,7 @@ void CreateShape(float rectangleSize)
 
     UpdateMesh();
 }
+
 
 
 
@@ -232,18 +247,20 @@ void InstantiateRedCube(Vector3 position)
 
 
    
-   void InstantiateCube(Vector3 position)
-   {
-       if (cubePrefab != null)
-       {
-           GameObject cube = Instantiate(cubePrefab, position, Quaternion.identity);
-           // You can further configure the instantiated cube, e.g., scale or material
-       }
-       else
-       {
-           Debug.LogError("Cube prefab is not assigned.");
-       }
-   }
+  
+void InstantiateBlueCube(Vector3 position)
+{
+    if (cubePrefab != null)
+    {
+        GameObject cube = Instantiate(cubePrefab, position, Quaternion.identity);
+        cube.GetComponent<Renderer>().material.color = Color.blue; // Set the cube color to blue
+    }
+    else
+    {
+        Debug.LogError("Cube prefab is not assigned.");
+    }
+}
+
 
     void UpdateMesh()
     {

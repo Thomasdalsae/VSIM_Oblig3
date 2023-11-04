@@ -24,11 +24,8 @@ public class PCGenerator : MonoBehaviour
                     float x = float.Parse(values[0]);
                     float y = float.Parse(values[1]);
                     float z = float.Parse(values[2]);
-<<<<<<< Updated upstream
                     Vector3 position = new Vector3(x * 5, y * 5, z * 5); // times 5 to make it easier to see
                     Instantiate(pointPrefab, position, Quaternion.identity); // Make a sphere for each location
-=======
-                    Vector3 position = new Vector3(x, z, y);
 
                     // Ensure the pointPrefab has a Renderer component
                     Renderer prefabRenderer = pointPrefab.GetComponent<Renderer>();
@@ -45,7 +42,6 @@ public class PCGenerator : MonoBehaviour
                     {
                         Debug.LogError("pointPrefab is missing a Renderer component.");
                     }
->>>>>>> Stashed changes
                 }
             }
         }

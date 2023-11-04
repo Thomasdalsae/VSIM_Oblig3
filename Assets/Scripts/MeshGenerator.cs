@@ -36,7 +36,6 @@ public class MeshGenerator : MonoBehaviour
         if (textAsset != null)
         {
             GetCoordsFromFile(textAsset);
-            InstantiateCubes();
         }
         else
         {
@@ -141,58 +140,61 @@ void CreateMesh(List<Vector3> coords, float minX, float minZ)
             }
         }
 
+    InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);
         UpdateMesh();
     }
 
-        void InstantiateCubes()
+ void InstantiateCubes(float cellSizeX, float cellSizeZ, float minX, float minZ)
+{
+    if (cubePrefab != null && centerCubePrefab != null)
+    {
+        for (int z = 0; z <= zGridCellCount; z++)
         {
-            if (cubePrefab != null && centerCubePrefab != null)
+            for (int x = 0; x <= xGridCellCount; x++)
             {
-                for (int i = 0; i < vertices.Length; i++)
-                {
-                    InstantiateCube(cubePrefab, vertices[i]);
-                    if (i % (xGridCellCount + 1) < xGridCellCount && i < vertices.Length - xGridCellCount - 1)
-                    {
-                        // Calculate the indices for the center of the square created by two triangles
-                        int centerIndex1 = i;
-                        int centerIndex2 = i + xGridCellCount + 2;
-                        Vector3 center = (vertices[centerIndex1] + vertices[centerIndex2]) * 0.5f;
-                        InstantiateRedCube(center);
-                    }
-                }
+                float xPos = x * cellSizeX + minX;
+                float zPos = z * cellSizeZ + minZ;
+                float centerX = xPos + (cellSizeX / 2);
+                float centerZ = zPos + (cellSizeZ / 2);
+
+                // Instantiate blue cube at the center of the square
+                InstantiateCube(centerCubePrefab, new Vector3(centerX, 0, centerZ), true);
+
+                // Instantiate red cubes at the corners of the square
+                InstantiateCube(cubePrefab, new Vector3(xPos, 0, zPos));
+                InstantiateCube(cubePrefab, new Vector3(xPos + cellSizeX, 0, zPos));
+                InstantiateCube(cubePrefab, new Vector3(xPos, 0, zPos + cellSizeZ));
+                InstantiateCube(cubePrefab, new Vector3(xPos + cellSizeX, 0, zPos + cellSizeZ));
             }
-            else
-            {
-                Debug.LogError("Cube prefabs are not assigned.");
-            }
-        }
-
-        void InstantiateCube(GameObject prefab, Vector3 position)
-        {
-            GameObject cube = Instantiate(prefab, position, Quaternion.identity);
-            cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
-        }
-
-        void InstantiateRedCube(Vector3 position)
-        {
-            GameObject cube = Instantiate(centerCubePrefab, position, Quaternion.identity);
-            cube.transform.localScale =
-                new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // Adjust the scale
-            cube.GetComponent<Renderer>().material.color = Color.red; // Set the cube color to red
-        }
-
-        void UpdateMesh()
-        {
-            mesh.Clear();
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-            mesh.RecalculateNormals();
         }
     }
+    else
+    {
+        Debug.LogError("Cube prefabs are not assigned.");
+    }
+}
 
+void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = false)
+{
+    GameObject cube = Instantiate(prefab, position, Quaternion.identity);
 
+    if (isCenterCube)
+    {
+        cube.transform.localScale = new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // Adjust the scale for the center cube
+        cube.GetComponent<Renderer>().material.color = Color.blue; // Set the center cube color to blue
+    }
+    else
+    {
+        cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
+        cube.GetComponent<Renderer>().material.color = Color.red; // Set the corner cube color to red
+    }
+}
 
-
-
-
-
+    void UpdateMesh()
+    {
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+    }
+}

@@ -154,16 +154,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d85008cc06a05994bbc1f5d8766212fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubeSize: 0.005
+  cubeSize: 0.5
   cubePrefab: {fileID: 8392702199813452726, guid: 948eb5768bfdba24eab56ce846074b97, type: 3}
   centerCubePrefab: {fileID: 2216332752498366378, guid: 3d322995f9e641347a4c809b5edaa1c1, type: 3}
   xGridCellCount: 5
   zGridCellCount: 5
-  textAsset: {fileID: 4900000, guid: 964e30cdba6e6494c838232adb6b46c7, type: 3}
+  textAsset: {fileID: 4900000, guid: eba191e0ebbbdeb44a69c1cd7523ca40, type: 3}
   gridSize: 5
   visualScale: 1
-  xSize: 20
-  zSize: 20
+  xSize: 5
+  zSize: 5
 --- !u!23 &779936771
 MeshRenderer:
   m_ObjectHideFlags: 0

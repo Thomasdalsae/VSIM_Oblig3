@@ -160,10 +160,10 @@ MonoBehaviour:
   xGridCellCount: 5
   zGridCellCount: 5
   textAsset: {fileID: 4900000, guid: eba191e0ebbbdeb44a69c1cd7523ca40, type: 3}
-  gridSize: 5
+  gridSize: 25
   visualScale: 1
-  xSize: 5
-  zSize: 5
+  xSize: 20
+  zSize: 20
 --- !u!23 &779936771
 MeshRenderer:
   m_ObjectHideFlags: 0

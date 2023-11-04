@@ -69,7 +69,7 @@ public class MeshGenerator : MonoBehaviour
                     minZ = Mathf.Min(minZ, z);
                     maxX = Mathf.Max(maxX, x);
                     maxZ = Mathf.Max(maxZ, z);
-                    coords.Add(new Vector3(x, y, z));
+                    coords.Add(new Vector3(x, z, y));
                 }
             }
         }

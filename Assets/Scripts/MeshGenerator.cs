@@ -28,6 +28,9 @@ public class MeshGenerator : MonoBehaviour
 
     public int zSize = 20;
 
+    private Color[] colors;
+    public Gradient gradient;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -54,8 +57,10 @@ public class MeshGenerator : MonoBehaviour
 
         float minX = float.MaxValue;
         float minZ = float.MaxValue;
+        float minY = float.MaxValue;
         float maxX = float.MinValue;
         float maxZ = float.MinValue;
+        float maxY = float.MinValue;
 
         foreach (var line in lines)
         {
@@ -67,8 +72,11 @@ public class MeshGenerator : MonoBehaviour
                 {
                     minX = Mathf.Min(minX, x);
                     minZ = Mathf.Min(minZ, z);
+                    minY = Mathf.Min(minY, y);
                     maxX = Mathf.Max(maxX, x);
                     maxZ = Mathf.Max(maxZ, z);
+                    maxY = Mathf.Max(maxY, y);
+                    
                     coords.Add(new Vector3(x, z, y));
                 }
             }
@@ -77,11 +85,11 @@ public class MeshGenerator : MonoBehaviour
         xGridCellCount = Mathf.CeilToInt((maxX - minX) / gridSize);
         zGridCellCount = Mathf.CeilToInt((maxZ - minZ) / gridSize);
 
-        CreateMesh(coords, minX, minZ);
+        CreateMesh(coords, minX, minZ,minY,maxY);
     }
 
        
-void CreateMesh(List<Vector3> coords, float minX, float minZ)
+void CreateMesh(List<Vector3> coords, float minX, float minZ,float minY,float maxY)
     {
         float cellSizeX = (coords.Max(v => v.x) - minX) / xGridCellCount;
         float cellSizeZ = (coords.Max(v => v.z) - minZ) / zGridCellCount;
@@ -138,8 +146,20 @@ void CreateMesh(List<Vector3> coords, float minX, float minZ)
 
                 vert++;
             }
-        }
 
+            
+        }
+            colors = new Color[vertices.Length];
+            for (int i = 0, z = 0; z <= zGridCellCount; z++)
+            {
+                for (int x = 0; x <= xGridCellCount; x++)
+                {
+                    float height = Mathf.InverseLerp(minY,maxY, vertices[i].y);
+                    colors[i] = gradient.Evaluate(height);
+                    i++;
+                    
+                }
+            }
     InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);
         UpdateMesh();
     }
@@ -195,6 +215,8 @@ void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = fa
         mesh.Clear();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+        mesh.colors = colors;
+        
         mesh.RecalculateNormals();
     }
 }

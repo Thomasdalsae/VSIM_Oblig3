@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d85008cc06a05994bbc1f5d8766212fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubeSize: 0.5
+  cubeSize: 1
   cubePrefab: {fileID: 8392702199813452726, guid: 948eb5768bfdba24eab56ce846074b97, type: 3}
   centerCubePrefab: {fileID: 2216332752498366378, guid: 3d322995f9e641347a4c809b5edaa1c1, type: 3}
   xGridCellCount: 5
@@ -162,8 +162,38 @@ MonoBehaviour:
   textAsset: {fileID: 4900000, guid: eba191e0ebbbdeb44a69c1cd7523ca40, type: 3}
   gridSize: 25
   visualScale: 1
-  xSize: 20
-  zSize: 20
+  xSize: 5
+  zSize: 5
+  gradient:
+    serializedVersion: 2
+    key0: {r: 0, g: 0.35106063, b: 1, a: 1}
+    key1: {r: 0.06657615, g: 0.541627, b: 0.3404128, a: 1}
+    key2: {r: 0.088287644, g: 0.6037736, b: 0.12531145, a: 0}
+    key3: {r: 0.36078432, g: 0.3882353, b: 0.38039216, a: 0}
+    key4: {r: 0.3594251, g: 0.38679248, b: 0.38048896, a: 0}
+    key5: {r: 0.9721484, g: 0.9733383, b: 0.9730642, a: 0}
+    key6: {r: 1, g: 1, b: 1, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 1735
+    ctime2: 10216
+    ctime3: 24672
+    ctime4: 39707
+    ctime5: 46453
+    ctime6: 65535
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 7
+    m_NumAlphaKeys: 2
 --- !u!23 &779936771
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -184,7 +214,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a428f7d742ec7254a84fac630f8c3e7c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -287,7 +317,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 5000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -314,13 +344,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1181111770}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.25030854, y: -0, z: -0, w: 0.9681661}
-  m_LocalPosition: {x: 1.193, y: 2.282, z: -0.801}
+  m_LocalRotation: {x: 0.018755708, y: -0.35585096, z: 0.0071433606, w: 0.93432724}
+  m_LocalPosition: {x: 1267.8, y: 301, z: -313.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 28.992, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 2.3, y: -41.7, z: 0}
 --- !u!1 &1767002309
 GameObject:
   m_ObjectHideFlags: 0
@@ -337,7 +367,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1767002310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -350,7 +380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb93fda3e340a394b990cf8db491d3b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointData: {fileID: 4900000, guid: 964e30cdba6e6494c838232adb6b46c7, type: 3}
+  pointData: {fileID: 4900000, guid: eba191e0ebbbdeb44a69c1cd7523ca40, type: 3}
   pointPrefab: {fileID: 6204084628371568029, guid: ae4429337a4cee248a4dcb450f57019a, type: 3}
 --- !u!4 &1767002311
 Transform:

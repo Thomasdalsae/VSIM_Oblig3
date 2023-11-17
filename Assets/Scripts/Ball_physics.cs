@@ -5,7 +5,8 @@ public class Ball_physics : MonoBehaviour
 {
     public MeshGenerator mesh;
 
-    private readonly float _radius = 0.020f;
+    private readonly float _radius = 6f;
+    
 
     [SerializeField] private Vector3 hitLocation;
 
@@ -58,25 +59,37 @@ public class Ball_physics : MonoBehaviour
         //Debug.Log("Length between startlocation and endlocation" + (startlocationv3 - _currentfPosition).magnitude);
     }
 
-    private void Correction()
+   
+private void Correction()
+{
+    // Get the current ball position in 2D (x, z)
+    Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
+
+    // Find the surface height directly under the ball's center
+    float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
+
+    // Calculate the contact point on the mesh
+    Vector3 contactPoint = new Vector3(_currentfPosition.x, surfaceHeight, _currentfPosition.z);
+
+    // Calculate the distance vector from the ball's center to the contact point
+    Vector3 distanceVector = contactPoint - _currentfPosition;
+
+    // Project the distance vector onto the surface normal
+    float projectionMagnitude = Vector3.Dot(distanceVector, _currentNormal);
+    Vector3 projectedVector = projectionMagnitude * _currentNormal;
+
+    // If the ball is intersecting with the mesh
+    if (projectedVector.magnitude <= _radius)
     {
-        // Find the point on the ground right under the center of the ball
-        var p = new Vector3(_currentfPosition.x,
-            mesh.GetSurfaceHeight(new Vector2(_currentfPosition.x, _currentfPosition.z)),
-            _currentfPosition.z);
+        // Move the ball up along the surface normal by the amount needed to prevent intersection
+        Vector3 correction = _radius * _currentNormal;
+        _currentfPosition += correction;
 
-        // Distance vector from center to p
-        var dist = _currentfPosition - p;
-
-        // Distance vector projected onto normal
-        var b = Vector3.Dot(dist, _currentNormal) * _currentNormal;
-
-        if (b.magnitude <= _radius) 
-        {
-            _currentfPosition = p + _radius * _currentNormal;
-            transform.position = _currentfPosition;
-        }
+        // Update the ball's position
+        transform.position = _currentfPosition;
     }
+}
+
 
     private void Move()
     {

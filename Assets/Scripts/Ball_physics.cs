@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,6 +41,10 @@ public class Ball_physics : MonoBehaviour
         _previousPosition = _currentfPosition;
 
         transform.position = _currentfPosition;
+    }
+
+    private void Awake()
+    {
     }
 
     private void FixedUpdate()

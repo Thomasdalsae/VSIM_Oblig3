@@ -26,8 +26,10 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private int _previousIndex; //(Previous triangle)
     [SerializeField] private Vector3 _previousNormal;
     [SerializeField] private Vector3 _currentNormal;
+    private bool isFalling = true;
 
     
+private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitational acceleration
 
     //Start locations
 
@@ -36,20 +38,33 @@ public class Ball_physics : MonoBehaviour
 
     private void Start()
     {
-        
-        var _startHeight = mesh.GetSurfaceHeight(new Vector3(transform.position.x,transform.position.y, transform.position.z));
-        _currentfPosition = new Vector3(transform.position.x, _startHeight + _radius, transform.position.y);
+
+        var _startHeight = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        _currentfPosition = new Vector3(transform.position.x, transform.position.y, transform.position.y);
+        //_currentfPosition = new Vector3(transform.position.x, _startHeight + _radius, transform.position.y);
         _previousPosition = _currentfPosition;
 
         transform.position = _currentfPosition;
+
+        
     }
 
-    private void FixedUpdate()
+     private void FixedUpdate()
     {
-        if (mesh)
+        if (isFalling)
         {
-            Correction();
-            Move();
+            ApplyCustomGravity(); // Apply gravity until the ball touches the mesh
+
+            // Check if the ball is close enough to the mesh to start collision checks
+            if (IsCloseToMesh())
+            {
+                isFalling = false; // Set the flag to false to indicate the ball touched the mesh
+            }
+        }
+        else if (mesh) // Once the ball touches the mesh, perform movement and collision checks
+        {
+            Correction(); // Check for collisions and adjust position if intersecting
+            Move();       // Move the ball based on the calculated physics
         }
     }
 
@@ -58,15 +73,25 @@ public class Ball_physics : MonoBehaviour
         mesh = FindObjectOfType<MeshGenerator>();
     }
 
-    private void Update()
-    {
-       // Vector3 startlocationv3 = _startLocation;dd
-        //Debug.Log("Acceleration" + Acceleration.magnitude);
-        //Debug.Log("length of currentvelocity" + _currentVelocity.magnitude);
-        //Debug.Log("Length between startlocation and endlocation" + (startlocationv3 - _currentfPosition).magnitude);
-    }
 
+
+   private void ApplyCustomGravity()
+   {
+       // Apply custom gravity to the ball
+       _currentVelocity += gravity * Time.fixedDeltaTime;
+       _currentfPosition += _currentVelocity * Time.fixedDeltaTime;
    
+       transform.position = _currentfPosition;
+   }
+   private bool IsCloseToMesh()
+       {
+           // Get the surface height directly under the ball's center
+           Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
+           float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
+   
+           // Check if the ball's vertical position is close enough to the surface of the generated mesh
+           return _currentfPosition.y <= surfaceHeight + _radius; // Adjust the threshold value as needed
+       }
 private void Correction()
 {
     // Get the current ball position in 2D (x, z)

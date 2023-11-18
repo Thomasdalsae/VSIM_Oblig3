@@ -27,24 +27,21 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private Vector3 _previousNormal;
     [SerializeField] private Vector3 _currentNormal;
 
+    
 
     //Start locations
 
-    [SerializeField] public Vector3 _startLocation = new(177f, 433f,404f);
+    //[SerializeField] public Vector3 _startLocation = new(177f, 433f,404f);
     private float _startHeight;
 
     private void Start()
     {
         
-        var _startHeight = mesh.GetSurfaceHeight(new Vector3(_startLocation.x,_startLocation.y, _startLocation.z));
-        _currentfPosition = new Vector3(_startLocation.x, _startHeight + _radius, _startLocation.y);
+        var _startHeight = mesh.GetSurfaceHeight(new Vector3(transform.position.x,transform.position.y, transform.position.z));
+        _currentfPosition = new Vector3(transform.position.x, _startHeight + _radius, transform.position.y);
         _previousPosition = _currentfPosition;
 
         transform.position = _currentfPosition;
-    }
-
-    private void Awake()
-    {
     }
 
     private void FixedUpdate()
@@ -56,9 +53,14 @@ public class Ball_physics : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        mesh = FindObjectOfType<MeshGenerator>();
+    }
+
     private void Update()
     {
-        Vector3 startlocationv3 = _startLocation;
+       // Vector3 startlocationv3 = _startLocation;dd
         //Debug.Log("Acceleration" + Acceleration.magnitude);
         //Debug.Log("length of currentvelocity" + _currentVelocity.magnitude);
         //Debug.Log("Length between startlocation and endlocation" + (startlocationv3 - _currentfPosition).magnitude);

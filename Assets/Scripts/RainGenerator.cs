@@ -29,7 +29,7 @@ public class RainGenerator : MonoBehaviour
             for (int i = 0; i <= AmountOfRainDrops; i++)
             {
                 Vector3 startLocation = new Vector3(UnityEngine.Random.Range(0, _Xsize), this.startLocation.y, UnityEngine.Random.Range(0, _Zsize));
-                GameObject raindrop = Instantiate(_raindropPrefab, startLocation, Quaternion.identity);
+                Instantiate(_raindropPrefab, startLocation, Quaternion.identity);
             } 
         }
 }

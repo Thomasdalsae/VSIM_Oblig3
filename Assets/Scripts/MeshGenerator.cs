@@ -149,6 +149,7 @@ public class MeshGenerator : MonoBehaviour
         }
 
         colors = new Color[vertices.Length];
+        /*
         for (int i = 0, z = 0; z <= zGridCellCount; z++)
         {
             for (int x = 0; x <= xGridCellCount; x++)
@@ -157,6 +158,13 @@ public class MeshGenerator : MonoBehaviour
                 colors[i] = gradient.Evaluate(height);
                 i++;
             }
+        }
+        */
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            float height = Mathf.InverseLerp(minY, maxY, vertices[i].y);
+            colors[i] = gradient.Evaluate(height);
+            
         }
 
         InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);

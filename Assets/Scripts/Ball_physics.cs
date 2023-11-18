@@ -27,7 +27,7 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private Vector3 _previousNormal;
     [SerializeField] private Vector3 _currentNormal;
     private bool isFalling = true;
-
+    private Vector3 collisionPoint; // Store collision point with the mesh
     
 private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitational acceleration
 
@@ -38,7 +38,7 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
 
     private void Start()
     {
-
+        
         var _startHeight = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         _currentfPosition = new Vector3(transform.position.x, transform.position.y, transform.position.y);
         //_currentfPosition = new Vector3(transform.position.x, _startHeight + _radius, transform.position.y);
@@ -59,10 +59,16 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
             if (IsCloseToMesh())
             {
                 isFalling = false; // Set the flag to false to indicate the ball touched the mesh
+                collisionPoint = _currentfPosition; // Store the collision point
+                
+                Debug.Log("Ball touched the mesh at: " + collisionPoint);
+                
             }
         }
         else if (mesh) // Once the ball touches the mesh, perform movement and collision checks
         {
+            _currentfPosition = collisionPoint; // Set the ball's position to the collision point 
+            Debug.Log("Ball is now rolling at: " + _currentfPosition);
             Correction(); // Check for collisions and adjust position if intersecting
             Move();       // Move the ball based on the calculated physics
         }
@@ -85,12 +91,12 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
    }
    private bool IsCloseToMesh()
        {
-           // Get the surface height directly under the ball's center
-           Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
-           float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
-   
-           // Check if the ball's vertical position is close enough to the surface of the generated mesh
-           return _currentfPosition.y <= surfaceHeight + _radius; // Adjust the threshold value as needed
+          // Get the surface height directly under the ball's center
+        Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
+        float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
+
+        // Check if the ball's vertical position is close enough to the surface of the generated mesh
+        return _currentfPosition.y <= surfaceHeight + 0.1f; // Adjust the threshold value as needed
        }
 private void Correction()
 {
@@ -125,6 +131,7 @@ private void Correction()
 
     private void Move()
     {
+        Debug.Log("Ball is rolling" + _currentfPosition);
         // Iterate through each triangle 
         for (var i = 0; i < mesh.triangles.Length; i += 3)
         {

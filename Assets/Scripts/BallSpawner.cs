@@ -13,7 +13,7 @@ public class BallSpawner : MonoBehaviour
 
     private void Start()
     {
-        spawnLocation = transform.localPosition;
+        spawnLocation = transform.position;
         GenerateBall(); 
     }
     

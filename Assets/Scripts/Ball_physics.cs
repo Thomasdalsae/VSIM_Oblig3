@@ -40,7 +40,8 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
     {
         
         var _startHeight = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-        _currentfPosition = new Vector3(transform.position.x, transform.position.y, transform.position.y);
+        //_currentfPosition = new Vector3(transform.position.x, transform.position.y, transform.position.y);
+        _currentfPosition = transform.position;
         //_currentfPosition = new Vector3(transform.position.x, _startHeight + _radius, transform.position.y);
         _previousPosition = _currentfPosition;
 
@@ -50,7 +51,8 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
     }
 
      private void FixedUpdate()
-    {
+     { 
+         
         if (isFalling)
         {
             ApplyCustomGravity(); // Apply gravity until the ball touches the mesh
@@ -59,15 +61,17 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
             if (IsCloseToMesh())
             {
                 isFalling = false; // Set the flag to false to indicate the ball touched the mesh
-                collisionPoint = _currentfPosition; // Store the collision point
-                
+                //collisionPoint = _currentfPosition; // Store the collision point
+                _currentfPosition = transform.position; // Store the collision point
+                _previousPosition = _currentfPosition;
                 Debug.Log("Ball touched the mesh at: " + collisionPoint);
                 
             }
         }
         else if (mesh) // Once the ball touches the mesh, perform movement and collision checks
         {
-            _currentfPosition = collisionPoint; // Set the ball's position to the collision point 
+           // _currentfPosition = collisionPoint; // Set the ball's position to the collision point 
+           // _previousPosition = _currentfPosition;
             Debug.Log("Ball is now rolling at: " + _currentfPosition);
             Correction(); // Check for collisions and adjust position if intersecting
             Move();       // Move the ball based on the calculated physics
@@ -96,7 +100,7 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
         float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
 
         // Check if the ball's vertical position is close enough to the surface of the generated mesh
-        return _currentfPosition.y <= surfaceHeight + 0.1f; // Adjust the threshold value as needed
+        return _currentfPosition.y <= surfaceHeight + _radius; // Adjust the threshold value as needed
        }
 private void Correction()
 {
@@ -144,6 +148,7 @@ private void Correction()
             var p2 = mesh.vertices[mesh.triangles[i + 2]];
 
             // save the balls position in the xz-plane
+            //var pos = new Vector2(_currentfPosition.x, _currentfPosition.z);
             var pos = new Vector2(_currentfPosition.x, _currentfPosition.z);
 
             // Find which triangle the ball is currently on with barycentric coordinates

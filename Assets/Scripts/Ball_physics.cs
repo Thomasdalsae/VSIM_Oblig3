@@ -19,6 +19,7 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private float timeBall;
     [SerializeField] private List<float> timeBallArray;
     [SerializeField] private Vector3 Acceleration;
+    [SerializeField] private float frictionCoefficient; 
 
 
     //
@@ -175,9 +176,14 @@ private void Correction()
                 Acceleration = -Physics.gravity.y * new Vector3(_currentNormal.x * _currentNormal.y,
                     _currentNormal.y * _currentNormal.y - 1,
                     _currentNormal.z * _currentNormal.y);
+                
+                
+                
                 //Oppdater hastighet og posisjon
                 //ligning (8.14) og (8.15)
                 _currentVelocity = _previousVelocity + Acceleration * Time.fixedDeltaTime;
+                 Vector3 friction = -_currentVelocity.normalized * frictionCoefficient;
+                 _currentVelocity += friction * Time.fixedDeltaTime;
                 _previousVelocity = _currentVelocity;
 
                 _currentfPosition = _previousPosition + _previousVelocity * Time.fixedDeltaTime;

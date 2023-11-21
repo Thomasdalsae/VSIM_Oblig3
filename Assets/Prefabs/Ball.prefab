@@ -105,6 +105,7 @@ MonoBehaviour:
   timeBall: 0
   timeBallArray: []
   Acceleration: {x: 0, y: 0, z: 0}
+  frictionCoefficient: 0.1
   _currentIndex: 0
   _previousIndex: 0
   _previousNormal: {x: 0, y: 0, z: 0}

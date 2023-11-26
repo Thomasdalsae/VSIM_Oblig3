@@ -89,7 +89,7 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
                 _vassDragTimer = 0;
                 // Create a new GameObject to hold the LineRenderer
                     GameObject splineObject = new GameObject("SplineCurve");
-                    splineObject.transform.position = _currentfPosition;
+                    //splineObject.transform.position = _currentfPosition;
                     // Add LineRenderer component to the GameObject
                     LineRenderer = splineObject.AddComponent<LineRenderer>();
                 
@@ -135,10 +135,10 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
 
             if (_vassDragTimer <= 0 && BallStoppedSliding == false)
             {
-                RainPositions.Add(_currentfPosition); // Store the ball's position
-                Debug.Log("saving rains position" + _currentfPosition );
                 _vassDragTimer = _vassDragDT;
-                GenerateBSpline();
+                Debug.Log("saving rains position" + _currentfPosition );
+                RainPositions.Add(_currentfPosition); // Store the ball's position
+                //GenerateBSpline();
             }
 
             if (_currentVelocity.magnitude < accelerationThreshold)
@@ -294,43 +294,66 @@ private void Correction()
         }
     }
 private void GenerateBSpline()
+{
+    LineRenderer.positionCount = (RainPositions.Count - 2) * _numKnots + 1; // +1 to include the final point of the last segment
+
+    // Check if there are enough points to generate a spline
+    if (RainPositions.Count < 3)
+        return;
+
+    List<Vector3> splinePoints = new List<Vector3>();
+    controlPoints.Clear(); // Clear the existing control points before updating
+
+    // Update controlPoints with RainPositions as the new control points
+    for (int i = 0; i < RainPositions.Count; i++)
     {
-        LineRenderer.positionCount = RainPositions.Count * _numKnots; // Adjust this multiplier for a smoother curve
-
-        // Check if there are enough points to generate a spline
-        if (RainPositions.Count < 3)
-            return;
-
-        List<Vector3> splinePoints = new List<Vector3>();
-
-        // Populate control points with raindrop positions
-        controlPoints.Clear();
-        for (int i = 0; i < RainPositions.Count; i++)
-        {
-            controlPoints.Add(RainPositions[i]);
-        }
-
-        // Generate the B-spline curve using De Boor's algorithm
-        for (int i = 0; i < controlPoints.Count - 2; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                float t = j / 10f;
-                Vector3 splinePoint = DeBoor(controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], t);
-                splinePoint.y = mesh.GetSurfaceHeight(new Vector2(splinePoint.x, splinePoint.z)) + splineHeight;
-              
-                splinePoints.Add(splinePoint);
-                
-                  
-            }
-        }
-
-        // Set the positions for the LineRenderer
-        LineRenderer.positionCount = splinePoints.Count;
-        LineRenderer.SetPositions(splinePoints.ToArray());
-         // Visual debugging: create markers at spline points
-            VisualDebugSplinePoints(splinePoints);
+        controlPoints.Add(RainPositions[i]);
     }
+
+    // Generate the B-spline curve using De Boor's algorithm for each set of three control points
+    for (int i = 0; i < controlPoints.Count - 2; i += 2) // Increment by 2 for each set of three control points
+    {
+        for (int j = 0; j < _numKnots; j++)
+        {
+            float t = (float)j / _numKnots;
+            Vector3 splinePoint = DeBoor(controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], t);
+            splinePoint.y = GetValidSurfaceHeight(splinePoint);
+
+            splinePoints.Add(splinePoint);
+        }
+    }
+
+    // Add the last point of the last segment to ensure continuity
+    splinePoints.Add(controlPoints[controlPoints.Count - 1]);
+
+    // Set the positions for the LineRenderer
+    LineRenderer.positionCount = splinePoints.Count;
+    LineRenderer.SetPositions(splinePoints.ToArray());
+
+    // Visual debugging: create markers at spline points
+    VisualDebugSplinePoints(splinePoints);
+}
+
+
+
+private float GetValidSurfaceHeight(Vector3 point)
+{
+    // Attempt to find a valid surface height
+    float surfaceHeight = mesh.GetSurfaceHeight(new Vector2(point.x, point.z));
+    int maxAttempts = 10; // Maximum attempts to find a valid height
+
+    while (surfaceHeight <= 0 && maxAttempts > 0)
+    {
+        // Adjust the point slightly and try again
+        point += new Vector3(0.1f, 0.1f, 0.1f); // Adjust this offset as needed
+        surfaceHeight = mesh.GetSurfaceHeight(new Vector2(point.x, point.z));
+        maxAttempts--;
+    }
+
+    // Return either the found surface height or a default value
+    return surfaceHeight > 0 ? surfaceHeight + splineHeight : 0.0f;
+}
+
 
 private void VisualDebugSplinePoints(List<Vector3> points)
 {
@@ -362,7 +385,7 @@ private Vector3 DeBoor(Vector3 p0, Vector3 p1, Vector3 p2, float t)
             BallStoppedSliding = true;
             Debug.Log("Ball has stopped");
           
-           // GenerateBSpline();
+            GenerateBSpline();
         }
    
 }

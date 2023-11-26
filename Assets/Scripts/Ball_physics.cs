@@ -30,7 +30,7 @@ public class Ball_physics : MonoBehaviour
     private float _vassDragTimer = 5;
 
     public LineRenderer LineRenderer;
-    [SerializeField] private int _numKnots = 5;
+    [SerializeField] private int _numKnots = 10;
     [SerializeField] float splineHeight = 5f;
     private List<Vector3> RainPositions = new List<Vector3>(); // Store the ball's positions
     private List<Vector3> controlPoints = new List<Vector3>(); // List to store control points
@@ -65,13 +65,15 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
         transform.position = _currentfPosition;
 
         BallStoppedSliding = false;
-
+        
+ 
 
     }
 
      private void FixedUpdate()
      { 
          
+                                GenerateBSpline();
         if (isFalling)
         {
             ApplyCustomGravity(); // Apply gravity until the ball touches the mesh
@@ -84,7 +86,20 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
                 _currentfPosition = transform.position; // Store the collision point
                 _previousPosition = _currentfPosition;
                 Debug.Log("Ball touched the mesh at: " + collisionPoint);
+
+                _vassDragTimer = 0;
+                // Create a new GameObject to hold the LineRenderer
+                    GameObject splineObject = new GameObject("SplineCurve");
+                    splineObject.transform.position = _currentfPosition;
+                    // Add LineRenderer component to the GameObject
+                    LineRenderer = splineObject.AddComponent<LineRenderer>();
                 
+                    // Set LineRenderer properties (material, color, width, etc.)
+                    LineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+                  LineRenderer.startColor = Color.blue;
+                   LineRenderer.endColor = Color.blue;
+                   LineRenderer.startWidth = 0.1f;
+                   LineRenderer.endWidth = 0.1f;
             }
         }
         else if (mesh) // Once the ball touches the mesh, perform movement and collision checks
@@ -96,7 +111,7 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
             Move();       // Move the ball based on the calculated physics
 
             
-                    Debug.Log("currentAcceleration" + Acceleration.magnitude);
+                   // Debug.Log("currentAcceleration" + Acceleration.magnitude);
                     // Check if the ball's acceleration magnitude is below the threshold
                     if (Acceleration.magnitude < accelerationThreshold)
                     {
@@ -137,7 +152,6 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
                                     controlPoints.Add(RainPositions[i]);
                                 }
                         
-                                GenerateBSpline();
                
             }
         }
@@ -287,28 +301,51 @@ private void Correction()
         }
     }
 private void GenerateBSpline()
-    {
-        LineRenderer.positionCount = _numKnots * 10; // Adjust this multiplier for a smoother curve
+{
+    LineRenderer.positionCount = RainPositions.Count * 10; // Adjust this multiplier for a smoother curve
 
-        for (int i = 0; i < _numKnots - 2; i++)
+    // Populate control points with raindrop positions
+    controlPoints.Clear();
+    for (int i = 0; i < RainPositions.Count; i++)
+    {
+        controlPoints.Add(RainPositions[i]);
+    }
+
+    int startIndex = 0;
+    
+    // Generate the B-spline curve using De Boor's algorithm
+    for (int i = startIndex; i < RainPositions.Count - 2; i++)
+    {
+        for (int j = 0; j < 10; j++)
         {
-            for (int j = 0; j < 10; j++)
-            {
-                float t = j / 10.0f;
-                Vector3 splinePoint = DeBoor(controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], t);
-                splinePoint.y = mesh.GetSurfaceHeight(new Vector2(splinePoint.x, splinePoint.z)) + splineHeight;
-                LineRenderer.SetPosition((i * 10) + j, splinePoint);
-            }
+            float t = j / 10.0f;
+            Vector3 splinePoint = DeBoor(controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], t);
+
+            // Fetch surface height for each spline point individually
+            float surfaceHeight = mesh.GetSurfaceHeight(new Vector2(splinePoint.x, splinePoint.z));
+
+            // Set the spline point's height based on the fetched surface height
+            splinePoint.y = surfaceHeight + splineHeight;
+            LineRenderer.SetPosition((i - startIndex) * 10 + j, splinePoint);
+
+            // Create debug spheres for visualization (for debugging purposes)
+            GameObject debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            debugSphere.transform.position = splinePoint; // Set the position of the debug sphere to the calculated splinePoint
+            debugSphere.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f); // Optional: Adjust sphere size for better visibility
         }
     }
+}
 
-    private Vector3 DeBoor(Vector3 p0, Vector3 p1, Vector3 p2, float t)
-    {
-        Vector3 q0 = (1 - t) * p0 + t * p1;
-        Vector3 q1 = (1 - t) * p1 + t * p2;
 
-        return (1 - t) * q0 + t * q1;
-    }
+
+private Vector3 DeBoor(Vector3 p0, Vector3 p1, Vector3 p2, float t)
+{
+    Vector3 q0 = (1 - t) * p0 + t * p1;
+    Vector3 q1 = (1 - t) * p1 + t * p2;
+
+    return (1 - t) * q0 + t * q1;
+}
+
      private void BallStopped()
         {
             // Logic to execute when the ball is considered stopped
@@ -326,6 +363,7 @@ private void GenerateBSpline()
     
             GenerateBSpline();
         }
+   
 }
 
 

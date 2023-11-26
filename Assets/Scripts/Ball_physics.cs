@@ -16,10 +16,18 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private Vector3 _previousPosition;
     [SerializeField] private Vector3 _currentVelocity;
     [SerializeField] private Vector3 _previousVelocity;
-    [SerializeField] private float timeBall;
-    [SerializeField] private List<float> timeBallArray;
     [SerializeField] private Vector3 Acceleration;
-    [SerializeField] private float frictionCoefficient; 
+     private float frictionCoefficient;
+     private float stopThreshold = 0.1f;
+
+    #region VassDrag
+
+   [SerializeField] private float _vassDragDT = 2;
+    private float _vassDragTimer = 5;
+    private List<Vector3> RainPositions = new List<Vector3>(); // Store the ball's positions
+    
+
+    #endregion
 
 
     //
@@ -73,10 +81,27 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
         {
            // _currentfPosition = collisionPoint; // Set the ball's position to the collision point 
            // _previousPosition = _currentfPosition;
-            Debug.Log("Ball is now rolling at: " + _currentfPosition);
+            //Debug.Log("Ball is now rolling at: " + _currentfPosition);
             Correction(); // Check for collisions and adjust position if intersecting
             Move();       // Move the ball based on the calculated physics
+
+            _vassDragTimer -= Time.deltaTime;
+
+            if (_vassDragTimer <= 0)
+            {
+                RainPositions.Add(_currentfPosition); // Store the ball's position
+                Debug.Log("saving rains position" + _currentfPosition );
+                _vassDragTimer = _vassDragDT;
+            }
+
+            if (_currentVelocity.magnitude < stopThreshold)
+            {
+                Debug.Log("Ball has stopped");
+               
+            }
         }
+        
+        
     }
 
     private void Awake()
@@ -137,7 +162,7 @@ private void Correction()
  
     private void Move()
     {
-        Debug.Log("Ball is rolling" + _currentfPosition);
+        //Debug.Log("Ball is rolling" + _currentfPosition);
         // Iterate through each triangle 
         for (var i = 0; i < mesh.triangles.Length; i += 3)
         {
@@ -163,7 +188,6 @@ private void Correction()
 
             if (baryCoords is { x: >= 0.0f, y: >= 0.0f, z: >= 0.0f })
             {
-                timeBall += Time.fixedDeltaTime;
 
                 hitLocation = baryCoords;
                 //beregne normal
@@ -219,4 +243,6 @@ private void Correction()
             }
         }
     }
+
+  
 }

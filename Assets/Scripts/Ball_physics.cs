@@ -138,7 +138,11 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
                 _vassDragTimer = _vassDragDT;
                 Debug.Log("saving rains position" + _currentfPosition );
                 RainPositions.Add(_currentfPosition); // Store the ball's position
-                //GenerateBSpline();
+
+                if (RainPositions.Count >1)
+                {
+                    GenerateBSpline();
+                }
             }
 
             if (_currentVelocity.magnitude < accelerationThreshold)
@@ -385,7 +389,7 @@ private Vector3 DeBoor(Vector3 p0, Vector3 p1, Vector3 p2, float t)
             BallStoppedSliding = true;
             Debug.Log("Ball has stopped");
           
-            GenerateBSpline();
+           // GenerateBSpline();
         }
    
 }

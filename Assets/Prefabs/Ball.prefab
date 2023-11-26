@@ -102,10 +102,11 @@ MonoBehaviour:
   _previousPosition: {x: 0, y: 0, z: 0}
   _currentVelocity: {x: 0, y: 0, z: 0}
   _previousVelocity: {x: 0, y: 0, z: 0}
-  timeBall: 0
-  timeBallArray: []
   Acceleration: {x: 0, y: 0, z: 0}
-  frictionCoefficient: 0.1
+  _vassDragDT: 2
+  LineRenderer: {fileID: 0}
+  _numKnots: 5
+  splineHeight: 5
   _currentIndex: 0
   _previousIndex: 0
   _previousNormal: {x: 0, y: 0, z: 0}

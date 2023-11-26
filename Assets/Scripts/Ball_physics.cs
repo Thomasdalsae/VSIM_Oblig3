@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Ball_physics : MonoBehaviour
 {
@@ -18,15 +19,22 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private Vector3 _previousVelocity;
     [SerializeField] private Vector3 Acceleration;
      private float frictionCoefficient;
-     private float stopThreshold = 0.1f;
+   private float accelerationThreshold = 0.1f; // Threshold to determine if the ball has stopped
+    private Vector3 previousAcceleration;
+    private float stoppedDuration;
+    private float timeThreshold = 1.0f; // Duration threshold to consider the ball as stopped
 
     #region VassDrag
 
    [SerializeField] private float _vassDragDT = 2;
     private float _vassDragTimer = 5;
-    private List<Vector3> RainPositions = new List<Vector3>(); // Store the ball's positions
-    
 
+    public LineRenderer LineRenderer;
+    [SerializeField] private int _numKnots = 5;
+    [SerializeField] float splineHeight = 5f;
+    private List<Vector3> RainPositions = new List<Vector3>(); // Store the ball's positions
+    private List<Vector3> controlPoints = new List<Vector3>(); // List to store control points
+    private bool BallStoppedSliding = false;
     #endregion
 
 
@@ -56,7 +64,9 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
 
         transform.position = _currentfPosition;
 
-        
+        BallStoppedSliding = false;
+
+
     }
 
      private void FixedUpdate()
@@ -85,18 +95,49 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
             Correction(); // Check for collisions and adjust position if intersecting
             Move();       // Move the ball based on the calculated physics
 
+            
+                    Debug.Log("currentAcceleration" + Acceleration.magnitude);
+                    // Check if the ball's acceleration magnitude is below the threshold
+                    if (Acceleration.magnitude < accelerationThreshold)
+                    {
+                        // If the ball's acceleration is below the threshold, increase the stopped duration
+                        stoppedDuration += Time.fixedDeltaTime;
+                        
+                        if (stoppedDuration >= timeThreshold)
+                        {
+                            // If the ball has remained below the threshold for the specified duration, consider it stopped
+                            BallStopped();
+                        }
+                    }
+                    else
+                    {
+                        // If the ball's acceleration is above the threshold, reset the stopped duration
+                        stoppedDuration = 0f;
+                    }
+                    
+                    previousAcceleration = Acceleration;
+            
             _vassDragTimer -= Time.deltaTime;
 
-            if (_vassDragTimer <= 0)
+            if (_vassDragTimer <= 0 && BallStoppedSliding == false)
             {
                 RainPositions.Add(_currentfPosition); // Store the ball's position
                 Debug.Log("saving rains position" + _currentfPosition );
                 _vassDragTimer = _vassDragDT;
             }
 
-            if (_currentVelocity.magnitude < stopThreshold)
+            if (_currentVelocity.magnitude < accelerationThreshold)
             {
+                BallStoppedSliding = true;
                 Debug.Log("Ball has stopped");
+                 // Simulated control points for demonstration purposes
+                                // You should populate controlPoints with your raindrop positions
+                                for (int i = 0; i < _numKnots; i++)
+                                {
+                                    controlPoints.Add(RainPositions[i]);
+                                }
+                        
+                                GenerateBSpline();
                
             }
         }
@@ -107,6 +148,7 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
     private void Awake()
     {
         mesh = FindObjectOfType<MeshGenerator>();
+        
     }
 
 
@@ -124,6 +166,7 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
           // Get the surface height directly under the ball's center
         Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
         float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
+        
 
         // Check if the ball's vertical position is close enough to the surface of the generated mesh
         return _currentfPosition.y <= surfaceHeight + _radius; // Adjust the threshold value as needed
@@ -243,6 +286,49 @@ private void Correction()
             }
         }
     }
+private void GenerateBSpline()
+    {
+        LineRenderer.positionCount = _numKnots * 10; // Adjust this multiplier for a smoother curve
 
-  
+        for (int i = 0; i < _numKnots - 2; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                float t = j / 10.0f;
+                Vector3 splinePoint = DeBoor(controlPoints[i], controlPoints[i + 1], controlPoints[i + 2], t);
+                splinePoint.y = mesh.GetSurfaceHeight(new Vector2(splinePoint.x, splinePoint.z)) + splineHeight;
+                LineRenderer.SetPosition((i * 10) + j, splinePoint);
+            }
+        }
+    }
+
+    private Vector3 DeBoor(Vector3 p0, Vector3 p1, Vector3 p2, float t)
+    {
+        Vector3 q0 = (1 - t) * p0 + t * p1;
+        Vector3 q1 = (1 - t) * p1 + t * p2;
+
+        return (1 - t) * q0 + t * q1;
+    }
+     private void BallStopped()
+        {
+            // Logic to execute when the ball is considered stopped
+            
+            BallStoppedSliding = true;
+            Debug.Log("Ball has stopped");
+            
+            // Rest of your code...
+            
+            // Simulated control points for demonstration purposes
+            for (int i = 0; i < _numKnots; i++)
+            {
+                controlPoints.Add(RainPositions[i]);
+            }
+    
+            GenerateBSpline();
+        }
 }
+
+
+
+
+

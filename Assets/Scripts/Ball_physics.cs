@@ -139,7 +139,7 @@ private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitat
                 Debug.Log("saving rains position" + _currentfPosition );
                 RainPositions.Add(_currentfPosition); // Store the ball's position
 
-                if (RainPositions.Count >1)
+                if (RainPositions.Count > 1)
                 {
                     GenerateBSpline();
                 }

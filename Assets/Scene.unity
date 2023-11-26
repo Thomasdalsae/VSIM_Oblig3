@@ -329,7 +329,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &815585920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,7 +345,7 @@ MonoBehaviour:
   _Xsize: 75
   _Zsize: 75
   _raindropSize: 0
-  AmountOfRainDrops: 1
+  AmountOfRainDrops: 10
   _raindropPrefab: {fileID: 8379537893554886575, guid: 067f1d24879ff16469e4850f9497ed18, type: 3}
   startLocation: {x: 0, y: 0, z: 0}
   minScale: 2

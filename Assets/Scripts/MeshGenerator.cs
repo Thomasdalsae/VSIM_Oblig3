@@ -201,22 +201,26 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = false)
-    {
-        GameObject cube = Instantiate(prefab, position, Quaternion.identity);
+    
+void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = false)
+{
+    GameObject cube = Instantiate(prefab, position, Quaternion.identity);
 
-        if (isCenterCube)
-        {
-            cube.transform.localScale =
-                new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // Adjust the scale for the center cube
-            cube.GetComponent<Renderer>().material.color = Color.blue; // Set the center cube color to blue
-        }
-        else
-        {
-            cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
-            cube.GetComponent<Renderer>().material.color = Color.red; // Set the corner cube color to red
-        }
+    cube.transform.SetParent(transform); // Set the MeshGenerator as the parent
+
+    if (isCenterCube)
+    {
+        cube.transform.localScale =
+            new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // Adjust the scale for the center cube
+        cube.GetComponent<Renderer>().material.color = Color.blue; // Set the center cube color to blue
     }
+    else
+    {
+        cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
+        cube.GetComponent<Renderer>().material.color = Color.red; // Set the corner cube color to red
+    }
+}
+
 
     void UpdateMesh()
     {

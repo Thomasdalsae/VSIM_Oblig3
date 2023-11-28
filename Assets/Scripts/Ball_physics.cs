@@ -8,7 +8,6 @@ public class Ball_physics : MonoBehaviour
     private readonly float _radius = 6f;
 
 
-
     //
     [SerializeField] private Vector3 _currentfPosition;
     [SerializeField] private Vector3 _previousPosition;
@@ -21,6 +20,8 @@ public class Ball_physics : MonoBehaviour
     private float timeThreshold = 1.0f; // Duration threshold to consider the ball as stopped
 
     #region VassDrag
+
+    [SerializeField] private bool createTrail = true;
 
     [SerializeField] private float _vassDragDT = 5;
     private float _vassDragTimer = 5;
@@ -36,6 +37,7 @@ public class Ball_physics : MonoBehaviour
 
     #region Storm
 
+    [SerializeField] private bool shouldMove = true;
 
     #endregion
 
@@ -49,9 +51,7 @@ public class Ball_physics : MonoBehaviour
 
     private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitational acceleration
 
-    //Start locations
 
-    //[SerializeField] public Vector3 _startLocation = new(177f, 433f,404f);
     private float _startHeight;
 
     private void Start()
@@ -67,60 +67,64 @@ public class Ball_physics : MonoBehaviour
         BallStoppedSliding = false;
     }
 
+
     private void FixedUpdate()
     {
         if (isFalling)
         {
-            ApplyCustomGravity(); // Apply gravity until the ball touches the mesh
-            // Check if the ball is close enough to the mesh to start collision checks
+            ApplyCustomGravity();
+
             if (IsCloseToMesh())
             {
-                isFalling = false; // Set the flag to false to indicate the ball touched the mesh
-                //collisionPoint = _currentfPosition; // Store the collision point
-                _currentfPosition = transform.position; // Store the collision point
+                isFalling = false;
+                _currentfPosition = transform.position;
                 _previousPosition = _currentfPosition;
                 Debug.Log("Ball touched the mesh at: " + collisionPoint);
 
                 _vassDragTimer = 0;
-               // Create a new LineRenderer as a child of the ball object
-    GameObject splineObject = new GameObject("SplineCurve");
-    splineObject.transform.SetParent(transform); // Set ball object as the parent
-    LineRenderer = splineObject.AddComponent<LineRenderer>();
-
-                // Set LineRenderer properties (material, color, width, etc.)
-                LineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-                LineRenderer.startColor = Color.blue;
-                LineRenderer.endColor = Color.blue;
-                LineRenderer.startWidth = 0.1f;
-                LineRenderer.endWidth = 0.1f;
-            }
-        }
-        else if (mesh) // Once the ball touches the mesh, perform movement and collision checks
-        {
-            // _currentfPosition = collisionPoint; // Set the ball's position to the collision point 
-            // _previousPosition = _currentfPosition;
-            //Debug.Log("Ball is now rolling at: " + _currentfPosition);
-            Correction(); // Check for collisions and adjust position if intersecting
-            Move(); // Move the ball based on the calculated physics
-
-
-            // Debug.Log("currentAcceleration" + Acceleration.magnitude);
-            // Check if the ball's acceleration magnitude is below the threshold
-            if (Acceleration.magnitude < accelerationThreshold)
-            {
-                // If the ball's acceleration is below the threshold, increase the stopped duration
-                stoppedDuration += Time.fixedDeltaTime;
-
-                if (stoppedDuration >= timeThreshold)
+                if (createTrail)
                 {
-                    // If the ball has remained below the threshold for the specified duration, consider it stopped
-                    BallStopped();
+                    GameObject splineObject = new GameObject("SplineCurve");
+                    splineObject.transform.SetParent(transform);
+                    LineRenderer = splineObject.AddComponent<LineRenderer>();
+
+                    LineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+                    LineRenderer.startColor = Color.blue;
+                    LineRenderer.endColor = Color.blue;
+                    LineRenderer.startWidth = 0.1f;
+                    LineRenderer.endWidth = 0.1f;
                 }
             }
-            else
+        }
+        else if (mesh)
+        {
+            if (shouldMove)
             {
-                // If the ball's acceleration is above the threshold, reset the stopped duration
-                stoppedDuration = 0f;
+                Correction();
+                Move();
+                if (Acceleration.magnitude < accelerationThreshold)
+                {
+                    stoppedDuration += Time.fixedDeltaTime;
+
+                    if (stoppedDuration >= timeThreshold)
+                    {
+                        BallStopped();
+                    }
+                }
+                else
+                {
+                    stoppedDuration = 0f;
+                }
+            }
+
+            // Stop ball movement if the flag is set to false
+            if (!shouldMove)
+            {
+                _currentVelocity = Vector3.zero; // Stop ball velocity
+                Acceleration = Vector3.zero; // Stop ball acceleration
+                _previousVelocity = Vector3.zero; // Stop ball velocity
+                _previousPosition = _currentfPosition; // Stop ball position
+                // Additional logic to handle the ball being stationary after collision
             }
 
 
@@ -130,12 +134,11 @@ public class Ball_physics : MonoBehaviour
             {
                 _vassDragTimer = _vassDragDT;
                 Debug.Log("saving rains position" + _currentfPosition);
-                RainPositions.Add(_currentfPosition); // Store the ball's position
+                RainPositions.Add(_currentfPosition);
 
                 if (RainPositions.Count > 1)
                 {
                     GenerateBSpline();
-
                 }
             }
 
@@ -147,31 +150,12 @@ public class Ball_physics : MonoBehaviour
         }
     }
 
+
     private void Awake()
     {
         mesh = FindObjectOfType<MeshGenerator>();
     }
 
-
-    private void ApplyCustomGravity()
-    {
-        // Apply custom gravity to the ball
-        _currentVelocity += gravity * Time.fixedDeltaTime;
-        _currentfPosition += _currentVelocity * Time.fixedDeltaTime;
-
-        transform.position = _currentfPosition;
-    }
-
-    private bool IsCloseToMesh()
-    {
-        // Get the surface height directly under the ball's center
-        Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
-        float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
-
-
-        // Check if the ball's vertical position is close enough to the surface of the generated mesh
-        return _currentfPosition.y <= surfaceHeight + _radius; // Adjust the threshold value as needed
-    }
 
     private void Correction()
     {
@@ -322,12 +306,6 @@ public class Ball_physics : MonoBehaviour
         // Set the positions for the LineRenderer
         LineRenderer.positionCount = splinePoints.Count;
         LineRenderer.SetPositions(splinePoints.ToArray());
-
-        foreach (var spline in splinePoints)
-        {
-        // Visual debugging: create markers at spline points
-        VisualDebugSplinePoints(splinePoints);
-        }
     }
 
 
@@ -349,25 +327,6 @@ public class Ball_physics : MonoBehaviour
         return surfaceHeight > 0 ? surfaceHeight + splineHeight : 0.0f;
     }
 
-
-   
-private void VisualDebugSplinePoints(List<Vector3> points)
-{
-    foreach (Vector3 point in points)
-    {
-        // Create a cube as a marker at each spline point
-        GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        marker.transform.SetParent(transform);
-        marker.transform.position = point;
-        marker.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        
-    }
-
-    
-}
-
-
-
     private Vector3 DeBoor(Vector3 p0, Vector3 p1, Vector3 p2, float t)
     {
         Vector3 q0 = (1 - t) * p0 + t * p1;
@@ -382,8 +341,28 @@ private void VisualDebugSplinePoints(List<Vector3> points)
         // Logic to execute when the ball is considered stopped
 
         BallStoppedSliding = true;
-        Debug.Log("Ball has stopped");
+       // Debug.Log("Ball has stopped");
 
         // GenerateBSpline();
+    }
+
+    private void ApplyCustomGravity()
+    {
+        // Apply custom gravity to the ball
+        _currentVelocity += gravity * Time.fixedDeltaTime;
+        _currentfPosition += _currentVelocity * Time.fixedDeltaTime;
+
+        transform.position = _currentfPosition;
+    }
+
+    private bool IsCloseToMesh()
+    {
+        // Get the surface height directly under the ball's center
+        Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
+        float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
+
+
+        // Check if the ball's vertical position is close enough to the surface of the generated mesh
+        return _currentfPosition.y <= surfaceHeight + _radius; // Adjust the threshold value as needed
     }
 }

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2058888173847496326}
   m_Layer: 0
   m_Name: Rain
-  m_TagString: Untagged
+  m_TagString: RainBall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -97,15 +97,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mesh: {fileID: 0}
-  hitLocation: {x: 0, y: 0, z: 0}
   _currentfPosition: {x: 0, y: 0, z: 0}
   _previousPosition: {x: 0, y: 0, z: 0}
   _currentVelocity: {x: 0, y: 0, z: 0}
   _previousVelocity: {x: 0, y: 0, z: 0}
-  timeBall: 0
-  timeBallArray: []
   Acceleration: {x: 0, y: 0, z: 0}
-  frictionCoefficient: 0.99
+  isRainBall: 1
+  createTrail: 1
+  _vassDragDT: 5
+  LineRenderer: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}
+  _numKnots: 10
+  splineHeight: 5
+  shouldMove: 1
   _currentIndex: 0
   _previousIndex: 0
   _previousNormal: {x: 0, y: 0, z: 0}

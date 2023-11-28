@@ -56,10 +56,7 @@ public class Ball_physics : MonoBehaviour
 
     private void Start()
     {
-        var _startHeight = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-        //_currentfPosition = new Vector3(transform.position.x, transform.position.y, transform.position.y);
         _currentfPosition = transform.position;
-        //_currentfPosition = new Vector3(transform.position.x, _startHeight + _radius, transform.position.y);
         _previousPosition = _currentfPosition;
 
         transform.position = _currentfPosition;
@@ -116,6 +113,7 @@ public class Ball_physics : MonoBehaviour
                     stoppedDuration = 0f;
                 }
             }
+            
 
             // Stop ball movement if the flag is set to false
             if (!shouldMove)
@@ -124,13 +122,12 @@ public class Ball_physics : MonoBehaviour
                 Acceleration = Vector3.zero; // Stop ball acceleration
                 _previousVelocity = Vector3.zero; // Stop ball velocity
                 _previousPosition = _currentfPosition; // Stop ball position
-                // Additional logic to handle the ball being stationary after collision
             }
 
 
             _vassDragTimer -= Time.deltaTime;
 
-            if (_vassDragTimer <= 0 && BallStoppedSliding == false)
+            if (_vassDragTimer <= 0 && BallStoppedSliding == false )
             {
                 _vassDragTimer = _vassDragDT;
                 Debug.Log("saving rains position" + _currentfPosition);
@@ -141,12 +138,7 @@ public class Ball_physics : MonoBehaviour
                     GenerateBSpline();
                 }
             }
-
-            if (_currentVelocity.magnitude < accelerationThreshold)
-            {
-                BallStoppedSliding = true;
-                Debug.Log("Ball has stopped");
-            }
+            
         }
     }
 
@@ -341,9 +333,7 @@ public class Ball_physics : MonoBehaviour
         // Logic to execute when the ball is considered stopped
 
         BallStoppedSliding = true;
-       // Debug.Log("Ball has stopped");
 
-        // GenerateBSpline();
     }
 
     private void ApplyCustomGravity()

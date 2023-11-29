@@ -106,8 +106,8 @@ MonoBehaviour:
   createTrail: 1
   _vassDragDT: 2
   splineRenderer: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}
-  _steps: 150
-  splineHeight: 5
+  _steps: 60
+  splineHeight: 2
   shouldMove: 1
   RainPositions: []
   _degree: 2

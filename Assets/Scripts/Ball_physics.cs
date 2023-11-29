@@ -25,7 +25,7 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private bool createTrail = true;
 
     [SerializeField] private float _vassDragDT = 5;
-    private float _vassDragTimer = 5;
+    private float _vassDragTimer = 1;
 
     public LineRenderer splineRenderer;
     [SerializeField] private int _steps = 5;
@@ -139,7 +139,7 @@ public class Ball_physics : MonoBehaviour
                 //Debug.Log("saving rains position" + _currentfPosition);
                 RainPositions.Add(_currentfPosition);
 
-                if (RainPositions.Count > 1)
+                if (RainPositions.Count > 2)
                 {
                     // Assuming _degree is set properly before calling CalculateKnots()
                     CalculateKnots(); // Call CalculateKnots() after collecting enough RainPositions
@@ -308,11 +308,11 @@ public class Ball_physics : MonoBehaviour
                 a[i] = a[i] * (1 - w) + a[i + 1] * w;
             }
 
-            return a[0];
+            
         }
-
+        return a[0];
         // Return a default value in case the loops don't execute
-        return Vector3.zero;
+        //return Vector3.zero;
     }
 
 // Calculate Knots array based on RainPositions count and degree
@@ -395,6 +395,7 @@ public class Ball_physics : MonoBehaviour
     for (int i = 0; i < numberOfPoints; i++)
     {
         float t = i / (float)(numberOfPoints - 1);
+        
         Vector3 pointOnSpline = EvaluateBSplineSimple(t);
         pointOnSpline.y += splineHeight; // Adding splineHeight to the y-coordinate
 

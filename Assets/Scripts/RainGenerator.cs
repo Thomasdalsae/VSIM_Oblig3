@@ -28,6 +28,8 @@ public class RainGenerator : MonoBehaviour
 
     private IEnumerator SpawnRain()
     {
+        
+        // lager regndråper med en random delay mellom 0.1 og 1 sekund
         for (int i = 0; i < AmountOfRainDrops; i++)
         {
             startLocation = new Vector3(
@@ -39,7 +41,6 @@ public class RainGenerator : MonoBehaviour
             GameObject newRaindrop = Instantiate(_raindropPrefab, startLocation, Quaternion.identity);
 
     
-            // Generate a random delay between 0.1 to 1 second for the next raindrop
             float delay = UnityEngine.Random.Range(0.1f, 1.0f);
             yield return new WaitForSeconds(delay);
         }

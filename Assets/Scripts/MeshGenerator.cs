@@ -16,23 +16,21 @@ public class MeshGenerator : MonoBehaviour
     public float cubeSize = 0.005f;
     public GameObject cubePrefab;
     public GameObject centerCubePrefab;
-    public int xGridCellCount = 5; // Number of grid cells in the x direction
-    public int zGridCellCount = 5; // Number of grid cells in the z direction
+    public int xGridCellCount = 5; //antall ruter i x retning
+    public int zGridCellCount = 5;  // antall ruter i z retning
     public TextAsset textAsset;
-    public int gridSize = 5; // Resolution in meters
+    public int gridSize = 5; // Resolution i meter  
+    
+    public bool SeeCubes = false;
     public float visualScale = 1.0f;
 
-    public int xSize = 20;
+    public int xSdize = 20;
 
     public int zSize = 20;
 
     private Color[] colors;
     public Gradient gradient;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
 
 
     private void Awake()
@@ -52,6 +50,7 @@ public class MeshGenerator : MonoBehaviour
 
     void GetCoordsFromFile(TextAsset textAsset)
     {
+        // skaffer koordinater fra fil. 
         string[] lines = textAsset.text.Split('\n');
         List<Vector3> coords = new List<Vector3>();
 
@@ -91,6 +90,8 @@ public class MeshGenerator : MonoBehaviour
 
     void CreateMesh(List<Vector3> coords, float minX, float minZ, float minY, float maxY)
     {
+        
+        // lager mesh av koordinatene i coords listen
         float cellSizeX = (coords.Max(v => v.x) - minX) / xGridCellCount;
         float cellSizeZ = (coords.Max(v => v.z) - minZ) / zGridCellCount;
 
@@ -149,17 +150,7 @@ public class MeshGenerator : MonoBehaviour
         }
 
         colors = new Color[vertices.Length];
-        /*
-        for (int i = 0, z = 0; z <= zGridCellCount; z++)
-        {
-            for (int x = 0; x <= xGridCellCount; x++)
-            {
-                float height = Mathf.InverseLerp(minY, maxY, vertices[i].y);
-                colors[i] = gradient.Evaluate(height);
-                i++;
-            }
-        }
-        */
+      
         for (int i = 0; i < vertices.Length; i++)
         {
             float height = Mathf.InverseLerp(minY, maxY, vertices[i].y);
@@ -167,7 +158,10 @@ public class MeshGenerator : MonoBehaviour
             
         }
 
-        //InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);
+        if (SeeCubes)
+        {
+            InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);
+        }
         UpdateMesh();
     }
 
@@ -184,10 +178,11 @@ public class MeshGenerator : MonoBehaviour
                     float centerX = xPos + (cellSizeX / 2);
                     float centerZ = zPos + (cellSizeZ / 2);
 
-                    // Instantiate blue cube at the center of the square
+                    // lager en blå kube i midten av hver rute
+                    
                     InstantiateCube(centerCubePrefab, new Vector3(centerX, 0, centerZ), true);
 
-                    // Instantiate red cubes at the corners of the square
+                    // lager en rød kube i hvert hjørne av hver rute
                     InstantiateCube(cubePrefab, new Vector3(xPos, 0, zPos));
                     InstantiateCube(cubePrefab, new Vector3(xPos + cellSizeX, 0, zPos));
                     InstantiateCube(cubePrefab, new Vector3(xPos, 0, zPos + cellSizeZ));
@@ -206,18 +201,18 @@ void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = fa
 {
     GameObject cube = Instantiate(prefab, position, Quaternion.identity);
 
-    cube.transform.SetParent(transform); // Set the MeshGenerator as the parent
+    cube.transform.SetParent(transform); // setter MeshGenerator som parent
 
     if (isCenterCube)
     {
         cube.transform.localScale =
-            new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // Adjust the scale for the center cube
-        cube.GetComponent<Renderer>().material.color = Color.blue; // Set the center cube color to blue
+            new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // justerer størrelsen på midta kuben
+        cube.GetComponent<Renderer>().material.color = Color.blue; // skift farge på midta kuben til blå
     }
     else
     {
         cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
-        cube.GetComponent<Renderer>().material.color = Color.red; // Set the corner cube color to red
+        cube.GetComponent<Renderer>().material.color = Color.red;  // skift farge på hjørne kubene til rød
     }
 }
 
@@ -234,6 +229,7 @@ void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = fa
 
     public Vector3 BarycentricCoordinates(Vector2 point1, Vector2 point2, Vector2 point3, Vector2 point)
     {
+        // finner barysentriske koordinater for et punkt i forhold til et triangel
         Vector2 p12 = point2 - point1;
         Vector2 p13 = point3 - point1;
         Vector3 n = (Vector3.Cross(new Vector3(p12.x, 0.0f, p12.y), new Vector3(p13.x, 0.0f, p13.y)));
@@ -258,7 +254,9 @@ void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = fa
     }
 
     public float GetSurfaceHeight(Vector2 p)
-    {
+    { 
+        
+        //  finner høyden på terrenget i punktet p ved hjelp av barysentriske koordinater.
         for (int i = 0; i < triangles.Length; i += 3)
         {
             var v0 = vertices[triangles[i]];
@@ -279,6 +277,6 @@ void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = fa
             }
         }
 
-        return 0.0f; // Default height if point is not found
+        return 0.0f;   //  vist pungt ikke finnes returner 0
     }
 }

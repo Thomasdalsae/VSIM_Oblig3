@@ -105,11 +105,13 @@ MonoBehaviour:
   Acceleration: {x: 0, y: 0, z: 0}
   createTrail: 0
   _vassDragDT: 2
-  LineRenderer: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}
-  _numKnots: 10
+  splineRenderer: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}
+  _steps: 5
   splineHeight: 5
   shouldMove: 0
-  rainBall: {fileID: 8379537893554886575, guid: 067f1d24879ff16469e4850f9497ed18, type: 3}
+  RainPositions: []
+  _degree: 2
+  Knots: []
   _currentIndex: 0
   _previousIndex: 0
   _previousNormal: {x: 0, y: 0, z: 0}

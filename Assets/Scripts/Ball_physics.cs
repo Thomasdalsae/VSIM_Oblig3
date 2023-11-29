@@ -9,27 +9,29 @@ public class Ball_physics : MonoBehaviour
     [SerializeField] private float _radius = 12; // Radius of the ball
 
 
-    //
+    #region Movement
+
+    
+
     [SerializeField] private Vector3 _currentfPosition;
     [SerializeField] private Vector3 _previousPosition;
     [SerializeField] private Vector3 _currentVelocity;
     [SerializeField] private Vector3 _previousVelocity;
     [SerializeField] private Vector3 Acceleration;
     private float frictionCoefficient;
-    private float accelerationThreshold = 0.1f; // Threshold to determine if the ball has stopped
+    private float accelerationThreshold = 0.1f; // Grense på ajelerasjonen for å bestemme om ballen har stoppet
     private float stoppedDuration;
-    private float timeThreshold = 1.0f; // Duration threshold to consider the ball as stopped
-
+    private float timeThreshold = 1.0f;  // hvor lenge ballen må ligge stille for å bli stoppet
+    #endregion
+    
     #region VassDrag
-
-    [SerializeField] private bool createTrail = true;
-
-    [SerializeField] private float _vassDragDT = 5;
-    private float _vassDragTimer = 1;
+    [SerializeField] private bool createTrail = true; //Om man skal ha trail på ballen eller ikke (siden jeg bruker samme script for alle ballene)
+    [SerializeField] private float _vassDragDT = 5; // Hvor ofte vi skal lagre posisjonen til ballen
+    private float _vassDragTimer = 1; // Teller ned til vi skal lagre posisjonen til ballen
 
     public LineRenderer splineRenderer;
-    [SerializeField] private int _steps = 5;
-    [SerializeField] float splineHeight = 5f;
+    [SerializeField] private int _steps = 5; //Steps i hvor smooth linjen skal være.
+    [SerializeField] float splineHeight = 5f; //plassere linjen over bakken
    // private List<Vector3> ControlPoints; // List to store control points
     private bool BallStoppedSliding;
 
@@ -38,22 +40,20 @@ public class Ball_physics : MonoBehaviour
     #region Storm
 
     [SerializeField] private bool shouldMove = true;
-    
-    [SerializeField]private List<Vector3> RainPositions = new List<Vector3>(); // Store the ball's positions
-    [SerializeField] private int _degree = 2;
-    [SerializeField]private float[] Knots;
+    [SerializeField]private List<Vector3> RainPositions = new List<Vector3>(); // lagerer posisjonene til ballen 
+    [SerializeField] private int _degree = 2;  // graden til splinen
+    [SerializeField]private float[] Knots; // Knots array
 
     #endregion
 
     //
-    [SerializeField] private int _currentIndex; //(current triangle)
-    [SerializeField] private int _previousIndex; //(Previous triangle)
+    [SerializeField] private int _currentIndex; //( nåvarande trekant)
+    [SerializeField] private int _previousIndex; //(sist trekant)
     [SerializeField] private Vector3 _previousNormal;
     [SerializeField] private Vector3 _currentNormal;
     private bool isFalling = true;
-    private Vector3 collisionPoint; // Store collision point with the mesh
 
-    private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // Custom gravitational acceleration
+    private readonly Vector3 gravity = new Vector3(0, -9.81f, 0); // tyngdekraften
 
 
     private float _startHeight;
@@ -62,9 +62,7 @@ public class Ball_physics : MonoBehaviour
     {
         _currentfPosition = transform.position;
         _previousPosition = _currentfPosition;
-
         transform.position = _currentfPosition;
-
         BallStoppedSliding = false;
     }
 
@@ -73,17 +71,18 @@ public class Ball_physics : MonoBehaviour
     {
         if (isFalling)
         {
-            ApplyCustomGravity();
+            ApplyCustomGravity(); // får ballen til å falle
 
-            if (IsCloseToMesh())
+            if (IsCloseToMesh()) // sjekker om ballen har truffet meshen
             {
                 isFalling = false;
                 _currentfPosition = transform.position;
                 _previousPosition = _currentfPosition;
-                //Debug.Log("Ball touched the mesh at: " + collisionPoint);
-
+                //lagre posisjonen til ballen når den treffer meshen sånn at det blir korrekt bevegelse    
+                
+                
                 _vassDragTimer = 0;
-                if (createTrail)
+                if (createTrail) // sjekker om vi skal ha trail på ballen, når det er regn eller at det er togglet på så skal det ble laget en linje som viser hvor ballen har vært.
                 {
                     GameObject splineObject = new GameObject("SplineCurve");
                     splineObject.transform.SetParent(transform);
@@ -99,13 +98,13 @@ public class Ball_physics : MonoBehaviour
                 }
             }
         }
-        else if (mesh)
+        else if (mesh) // sjekker om meshen er laget
         {
-            if (shouldMove)
+            if (shouldMove) // sjekker om ballen skal bevege seg siden vi har en toggle for å stoppe ballen 
             {
                 Correction();
                 Move();
-                if (Acceleration.magnitude < accelerationThreshold)
+                if (Acceleration.magnitude < accelerationThreshold) // her har vi forskjellige måter å sjekke om ballen har stoppet eller ikke
                 {
                     stoppedDuration += Time.fixedDeltaTime;
 
@@ -121,7 +120,7 @@ public class Ball_physics : MonoBehaviour
             }
 
 
-            // Stop ball movement if the flag is set to false
+            // vist ballen ikke skal bevege seg så skal den ikke gjøre noe.
             if (!shouldMove)
             {
                 _currentVelocity = Vector3.zero; // Stop ball velocity
@@ -131,20 +130,19 @@ public class Ball_physics : MonoBehaviour
             }
 
 
+            // VassDrag, her teller vi ned å lagrer rainBall posisjonen  etter et vist tidsintervall. sånn at jeg kan lage en spline som viser hvor ballen har vært.
             _vassDragTimer -= Time.deltaTime;
-
             if (_vassDragTimer <= 0 && BallStoppedSliding == false)
             {
                 _vassDragTimer = _vassDragDT;
-                //Debug.Log("saving rains position" + _currentfPosition);
                 RainPositions.Add(_currentfPosition);
 
-                if (RainPositions.Count > 2)
+                if (RainPositions.Count > 2) //Når vi har 3 eller flere posisjoner så kan vi lage en spline
                 {
-                    // Assuming _degree is set properly before calling CalculateKnots()
-                    CalculateKnots(); // Call CalculateKnots() after collecting enough RainPositions
-                   
-                    UpdateSplineRenderer(); // Update the LineRenderer positions with the B-spline points
+                    //kalkulerer knutepunkter
+                    CalculateKnots();
+                    //oppdaterer linjen  
+                    UpdateSplineRenderer(); 
                 }
             }
         }
@@ -153,7 +151,7 @@ public class Ball_physics : MonoBehaviour
 
     private void Awake()
     {
-        mesh = FindObjectOfType<MeshGenerator>();
+        mesh = FindObjectOfType<MeshGenerator>(); // finner meshen i scenen
     }
 
 
@@ -161,18 +159,18 @@ public class Ball_physics : MonoBehaviour
     {
         Debug.Log("Entering debug log");
 
-        // Find the point on the ground right under the center of the ball
+        // finner punktet på bakken rett under sentrum av ballen.
         var p = new Vector3(_currentfPosition.x,
             GetValidSurfaceHeight(new Vector3(_currentfPosition.x, 0, _currentfPosition.z)),
             _currentfPosition.z);
 
-        // Distance vector from center to p
+        //distanse vektor fra sentrum til p
         var dist = _currentfPosition - p;
 
-        // Distance vector projected onto normal
+        //distansvektoren prosjektert på normalen
         var b = Vector3.Dot(dist, _currentNormal) * _currentNormal;
 
-        if (b.magnitude <= _radius)
+        if (b.magnitude <= _radius) // sjekker om ballen er under bakken
         {
             Debug.Log("Actually correcting!");
 
@@ -181,11 +179,11 @@ public class Ball_physics : MonoBehaviour
         }
         else
         {
-            // Additional check: If the ball is under the terrain, place it on top
+            // dette er en workaround for at ballen noen ganger faller gjennom meshen
             float surfaceHeight = GetValidSurfaceHeight(new Vector3(_currentfPosition.x, 0, _currentfPosition.z));
             if (_currentfPosition.y < surfaceHeight)
             {
-                _currentfPosition.y = surfaceHeight + _radius; // Place the ball on top of the terrain
+                _currentfPosition.y = surfaceHeight + _radius; // plasserer ballen på bakken
                 _previousPosition = _currentfPosition;
                 transform.position = _currentfPosition;
             }
@@ -195,29 +193,24 @@ public class Ball_physics : MonoBehaviour
 
     private void Move()
     {
-        //Debug.Log("Ball is rolling" + _currentfPosition);
-        // Iterate through each triangle 
+        //itrerer gjennom hver trekant
         for (var i = 0; i < mesh.triangles.Length; i += 3)
         {
-            // get vertices of the triangle
-
-
+            //skaff hjørnene til trekanten
             var p0 = mesh.vertices[mesh.triangles[i]];
             var p1 = mesh.vertices[mesh.triangles[i + 1]];
             var p2 = mesh.vertices[mesh.triangles[i + 2]];
 
-            // save the balls position in the xz-plane
-            //var pos = new Vector2(_currentfPosition.x, _currentfPosition.z);
+            // lagre ballens posisjon i xz planet
             var pos = new Vector2(_currentfPosition.x, _currentfPosition.z);
 
-            // Find which triangle the ball is currently on with barycentric coordinates
+            //finn hvilken trekant ballen er på med barycentric coordinates
             var baryCoords = mesh.BarycentricCoordinates(
                 new Vector2(p0.x, p0.z),
                 new Vector2(p1.x, p1.z),
                 new Vector2(p2.x, p2.z),
                 pos
             );
-
 
             if (baryCoords is { x: >= 0.0f, y: >= 0.0f, z: >= 0.0f })
             {
@@ -226,7 +219,6 @@ public class Ball_physics : MonoBehaviour
                 _currentNormal = Vector3.Cross(p1 - p0, p2 - p0).normalized;
 
                 //bergen akselerasjonesvektor - ligning (8.12)
-                // Vector3 acceleration = (1 / ballMass) * (normalVector + Physics.gravity);
                 //Oppdaterer hastigheten og posisjon
                 Acceleration = -Physics.gravity.y * new Vector3(_currentNormal.x * _currentNormal.y,
                     _currentNormal.y * _currentNormal.y - 1,
@@ -246,8 +238,6 @@ public class Ball_physics : MonoBehaviour
 
                 if (_currentIndex != _previousIndex)
                 {
-                    //timeBallArray.Add(timeBall); Trying to add Time ball to a list for each triangle
-
                     //ballen har Rullet over til en ny trekant
                     //beregn normaler  til kollisjonsplanet
                     // se ligningen(8.17)
@@ -274,15 +264,18 @@ public class Ball_physics : MonoBehaviour
         }
     }
 
-
+//Følgende algoritme kan brukes til å nne μ dersom vi har interpolasjon i endene
+ // (d+1 skjøter i hver ende av skjøtvektoren, kalles clamped kurve)
     int FindKnotInterval(float x)
-    {
+    {  
         int my = RainPositions.Count - 1;
         while (x < Knots[my])
             my--;
         return my;
     }
 
+    //Algoritmen nedenfor returnerer en tredimensjonal vektor for gitt parameterverdi og er altså for en splinekurve i R^3
+    // (dvs. en kurve i rommet). Algoritmen er enkel å utvide til høyere dimensjoner.
     public Vector3 EvaluateBSplineSimple(float x)
     {
         int my = FindKnotInterval(x);
@@ -311,11 +304,9 @@ public class Ball_physics : MonoBehaviour
             
         }
         return a[0];
-        // Return a default value in case the loops don't execute
-        //return Vector3.zero;
     }
 
-// Calculate Knots array based on RainPositions count and degree
+// kalkulerer knutepunkter basert på antall posisjoner og graden
     private void CalculateKnots()
     {
         int n = RainPositions.Count;
@@ -328,48 +319,47 @@ public class Ball_physics : MonoBehaviour
         {
             if (i < d + 1)
             {
-                Knots[i] = 0; // Knots from 0 to d are set to 0
+                Knots[i] = 0;  // knotene fra 0 til d er satt til 0
             }
             else if (i > n)
             {
-                Knots[i] = 1; // Knots after the last control point are set to 1
+                Knots[i] = 1; // knotene etter sist kontrollpunkt er satt til 1
             }
             else
             {
-                Knots[i] = (i - d) / (float)(n - d); // Internal knots calculation
+                Knots[i] = (i - d) / (float)(n - d); // intern knutepunk kalulering
             }
         }
     }
 
     private float GetValidSurfaceHeight(Vector3 point)
     {
-        // Attempt to find a valid surface height
+        // prøver å finne en gyldig overflatehøyde
         float surfaceHeight = mesh.GetSurfaceHeight(new Vector2(point.x, point.z));
-        int maxAttempts = 10; // Maximum attempts to find a valid height
+        int maxAttempts = 10; // hvor mange ganger vi skal prøve å finne en gyldig høyde
 
         while (surfaceHeight <= 0 && maxAttempts > 0)
         {
-            // Adjust the point slightly and try again
-            point += new Vector3(0.1f, 0.1f, 0.1f); // Adjust this offset as needed
+            // justerer punktet litt og prøver igjen
+            point += new Vector3(0.1f, 0.1f, 0.1f); // Juster denne verdien etter behov
             surfaceHeight = mesh.GetSurfaceHeight(new Vector2(point.x, point.z));
             maxAttempts--;
         }
 
-        // Return either the found surface height or a default value
+        // returner enten den funnet overflatehøyden eller en standardverdi
         return surfaceHeight > 0 ? surfaceHeight + _radius : 0.0f;
     }
 
 
     private void BallStopped()
     {
-        // Logic to execute when the ball is considered stopped
-
+        shouldMove = false;
         BallStoppedSliding = true;
     }
 
     private void ApplyCustomGravity()
     {
-        // Apply custom gravity to the ball
+        //er bare for å få ballen til å falle
         _currentVelocity += gravity * Time.fixedDeltaTime;
         _currentfPosition += _currentVelocity * Time.fixedDeltaTime;
 
@@ -378,18 +368,19 @@ public class Ball_physics : MonoBehaviour
 
     private bool IsCloseToMesh()
     {
-        // Get the surface height directly under the ball's center
+        // skaffer høyden til meshen rett under ballen
         Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
         float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
 
 
-        // Check if the ball's vertical position is close enough to the surface of the generated mesh
-        return _currentfPosition.y <= surfaceHeight + _radius; // Adjust the threshold value as needed
+        // sjekk om ballens vertikale posisjon er nær nok til overflaten av den genererte meshen
+        return _currentfPosition.y <= surfaceHeight + _radius;
     }
+    
 
  void UpdateSplineRenderer()
 {
-    int numberOfPoints = _steps; // Change this value as needed for the resolution of the curve
+    int numberOfPoints = _steps; // skifter antall punkter på linjen for å få den så smooth som mulig
     splineRenderer.positionCount = numberOfPoints;
 
     for (int i = 0; i < numberOfPoints; i++)
@@ -397,9 +388,9 @@ public class Ball_physics : MonoBehaviour
         float t = i / (float)(numberOfPoints - 1);
         
         Vector3 pointOnSpline = EvaluateBSplineSimple(t);
-        pointOnSpline.y += splineHeight; // Adding splineHeight to the y-coordinate
+        pointOnSpline.y += splineHeight;  // legger til en høyde på linjen sånn at den ikke er i bakken
 
-        // Ensure the correct position is being updated
+        // garanterer at den riktige posisjonen blir oppdatert
         splineRenderer.SetPosition(i, pointOnSpline);
         
     }

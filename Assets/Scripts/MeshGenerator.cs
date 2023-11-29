@@ -167,7 +167,7 @@ public class MeshGenerator : MonoBehaviour
             
         }
 
-        InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);
+        //InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);
         UpdateMesh();
     }
 

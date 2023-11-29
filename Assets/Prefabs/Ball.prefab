@@ -97,12 +97,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mesh: {fileID: 0}
+  _radius: 6
   _currentfPosition: {x: 0, y: 0, z: 0}
   _previousPosition: {x: 0, y: 0, z: 0}
   _currentVelocity: {x: 0, y: 0, z: 0}
   _previousVelocity: {x: 0, y: 0, z: 0}
   Acceleration: {x: 0, y: 0, z: 0}
-  isRainBall: 0
   createTrail: 0
   _vassDragDT: 2
   LineRenderer: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}

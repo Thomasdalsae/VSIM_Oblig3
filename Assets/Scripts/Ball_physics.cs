@@ -5,7 +5,7 @@ public class Ball_physics : MonoBehaviour
 {
     public MeshGenerator mesh;
 
-    private readonly float _radius = 6f;
+    [SerializeField] private float _radius = 12; // Radius of the ball
 
 
     //
@@ -76,7 +76,7 @@ public class Ball_physics : MonoBehaviour
                 isFalling = false;
                 _currentfPosition = transform.position;
                 _previousPosition = _currentfPosition;
-                Debug.Log("Ball touched the mesh at: " + collisionPoint);
+                Debug.Log("Ball touched the mesh at: " + _currentfPosition);
 
                 _vassDragTimer = 0;
                 if (createTrail)

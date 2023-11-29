@@ -8,7 +8,6 @@ public class RainGenerator : MonoBehaviour
 
     [SerializeField] private int _Xsize;
     [SerializeField] private int _Zsize;
-    [SerializeField] private float _raindropSize;
     [SerializeField] private int AmountOfRainDrops;
     [SerializeField] private GameObject _raindropPrefab;
     [SerializeField] private Vector3 startLocation;

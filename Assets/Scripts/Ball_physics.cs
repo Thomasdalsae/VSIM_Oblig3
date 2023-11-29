@@ -76,7 +76,7 @@ public class Ball_physics : MonoBehaviour
                 isFalling = false;
                 _currentfPosition = transform.position;
                 _previousPosition = _currentfPosition;
-                Debug.Log("Ball touched the mesh at: " + _currentfPosition);
+                //Debug.Log("Ball touched the mesh at: " + collisionPoint);
 
                 _vassDragTimer = 0;
                 if (createTrail)
@@ -97,7 +97,7 @@ public class Ball_physics : MonoBehaviour
         {
             if (shouldMove)
             {
-                Correction();
+               Correction();
                 Move();
                 if (Acceleration.magnitude < accelerationThreshold)
                 {
@@ -130,7 +130,7 @@ public class Ball_physics : MonoBehaviour
             if (_vassDragTimer <= 0 && BallStoppedSliding == false )
             {
                 _vassDragTimer = _vassDragDT;
-                Debug.Log("saving rains position" + _currentfPosition);
+                //Debug.Log("saving rains position" + _currentfPosition);
                 RainPositions.Add(_currentfPosition);
 
                 if (RainPositions.Count > 1)
@@ -138,6 +138,8 @@ public class Ball_physics : MonoBehaviour
                     GenerateBSpline();
                 }
             }
+            
+
             
         }
     }
@@ -149,35 +151,44 @@ public class Ball_physics : MonoBehaviour
     }
 
 
-    private void Correction()
+    
+private void Correction()
+{
+    Debug.Log("Entering debug log");
+
+    // Find the point on the ground right under the center of the ball
+    var p = new Vector3(_currentfPosition.x,
+        GetValidSurfaceHeight(new Vector3(_currentfPosition.x, 0, _currentfPosition.z)),
+        _currentfPosition.z);
+
+    // Distance vector from center to p
+    var dist = _currentfPosition - p;
+
+    // Distance vector projected onto normal
+    var b = Vector3.Dot(dist, _currentNormal) * _currentNormal;
+
+    if (b.magnitude <= _radius)
     {
-        // Get the current ball position in 2D (x, z)
-        Vector2 currentPositionXZ = new Vector2(_currentfPosition.x, _currentfPosition.z);
+        Debug.Log("Actually correcting!");
 
-        // Find the surface height directly under the ball's center
-        float surfaceHeight = mesh.GetSurfaceHeight(currentPositionXZ);
-
-        // Calculate the contact point on the mesh
-        Vector3 contactPoint = new Vector3(_currentfPosition.x, surfaceHeight, _currentfPosition.z);
-
-        // Calculate the distance vector from the ball's center to the contact point
-        Vector3 distanceVector = contactPoint - _currentfPosition;
-
-        // Project the distance vector onto the surface normal
-        float projectionMagnitude = Vector3.Dot(distanceVector, _currentNormal);
-        Vector3 projectedVector = projectionMagnitude * _currentNormal;
-
-        // If the ball is intersecting with the mesh
-        if (projectedVector.magnitude <= _radius)
+        _currentfPosition = p + _radius * _currentNormal;
+        transform.position = _currentfPosition;
+    }
+    else
+    {
+        // Additional check: If the ball is under the terrain, place it on top
+        float surfaceHeight = GetValidSurfaceHeight(new Vector3(_currentfPosition.x, 0, _currentfPosition.z));
+        if (_currentfPosition.y < surfaceHeight)
         {
-            // Move the ball up along the surface normal by the amount needed to prevent intersection
-            Vector3 correction = _radius * _currentNormal;
-            _currentfPosition += correction;
-
-            // Update the ball's position
+            _currentfPosition.y = surfaceHeight + _radius; // Place the ball on top of the terrain
+            _previousPosition = _currentfPosition;
             transform.position = _currentfPosition;
         }
     }
+}
+
+
+
 
 
     private void Move()

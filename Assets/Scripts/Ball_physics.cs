@@ -11,8 +11,6 @@ public class Ball_physics : MonoBehaviour
 
     #region Movement
 
-    
-
     [SerializeField] private Vector3 _currentfPosition;
     [SerializeField] private Vector3 _previousPosition;
     [SerializeField] private Vector3 _currentVelocity;
@@ -21,18 +19,25 @@ public class Ball_physics : MonoBehaviour
     private float frictionCoefficient;
     private float accelerationThreshold = 0.1f; // Grense på ajelerasjonen for å bestemme om ballen har stoppet
     private float stoppedDuration;
-    private float timeThreshold = 1.0f;  // hvor lenge ballen må ligge stille for å bli stoppet
+    private float timeThreshold = 1.0f; // hvor lenge ballen må ligge stille for å bli stoppet
+
     #endregion
-    
+
     #region VassDrag
-    [SerializeField] private bool createTrail = true; //Om man skal ha trail på ballen eller ikke (siden jeg bruker samme script for alle ballene)
+
+    [SerializeField]
+    private bool
+        createTrail = true; //Om man skal ha trail på ballen eller ikke (siden jeg bruker samme script for alle ballene)
+
     [SerializeField] private float _vassDragDT = 5; // Hvor ofte vi skal lagre posisjonen til ballen
     private float _vassDragTimer = 1; // Teller ned til vi skal lagre posisjonen til ballen
 
     public LineRenderer splineRenderer;
     [SerializeField] private int _steps = 5; //Steps i hvor smooth linjen skal være.
+
     [SerializeField] float splineHeight = 5f; //plassere linjen over bakken
-   // private List<Vector3> ControlPoints; // List to store control points
+
+    // private List<Vector3> ControlPoints; // List to store control points
     private bool BallStoppedSliding;
 
     #endregion
@@ -40,9 +45,9 @@ public class Ball_physics : MonoBehaviour
     #region Storm
 
     [SerializeField] private bool shouldMove = true;
-    [SerializeField]private List<Vector3> RainPositions = new List<Vector3>(); // lagerer posisjonene til ballen 
-    [SerializeField] private int _degree = 2;  // graden til splinen
-    [SerializeField]private float[] Knots; // Knots array
+    [SerializeField] private List<Vector3> RainPositions = new List<Vector3>(); // lagerer posisjonene til ballen 
+    [SerializeField] private int _degree = 2; // graden til splinen
+    [SerializeField] private float[] Knots; // Knots array
 
     #endregion
 
@@ -79,8 +84,8 @@ public class Ball_physics : MonoBehaviour
                 _currentfPosition = transform.position;
                 _previousPosition = _currentfPosition;
                 //lagre posisjonen til ballen når den treffer meshen sånn at det blir korrekt bevegelse    
-                
-                
+
+
                 _vassDragTimer = 0;
                 if (createTrail) // sjekker om vi skal ha trail på ballen, når det er regn eller at det er togglet på så skal det ble laget en linje som viser hvor ballen har vært.
                 {
@@ -104,7 +109,8 @@ public class Ball_physics : MonoBehaviour
             {
                 Correction();
                 Move();
-                if (Acceleration.magnitude < accelerationThreshold) // her har vi forskjellige måter å sjekke om ballen har stoppet eller ikke
+                if (Acceleration.magnitude <
+                    accelerationThreshold) // her har vi forskjellige måter å sjekke om ballen har stoppet eller ikke
                 {
                     stoppedDuration += Time.fixedDeltaTime;
 
@@ -123,10 +129,10 @@ public class Ball_physics : MonoBehaviour
             // vist ballen ikke skal bevege seg så skal den ikke gjøre noe.
             if (!shouldMove)
             {
-                _currentVelocity = Vector3.zero; // Stop ball velocity
-                Acceleration = Vector3.zero; // Stop ball acceleration
-                _previousVelocity = Vector3.zero; // Stop ball velocity
-                _previousPosition = _currentfPosition; // Stop ball position
+                _currentVelocity = Vector3.zero; 
+                Acceleration = Vector3.zero; 
+                _previousVelocity = Vector3.zero; 
+                _previousPosition = _currentfPosition; 
             }
 
 
@@ -142,7 +148,7 @@ public class Ball_physics : MonoBehaviour
                     //kalkulerer knutepunkter
                     CalculateKnots();
                     //oppdaterer linjen  
-                    UpdateSplineRenderer(); 
+                    UpdateSplineRenderer();
                 }
             }
         }
@@ -265,9 +271,9 @@ public class Ball_physics : MonoBehaviour
     }
 
 //Følgende algoritme kan brukes til å nne μ dersom vi har interpolasjon i endene
- // (d+1 skjøter i hver ende av skjøtvektoren, kalles clamped kurve)
+    // (d+1 skjøter i hver ende av skjøtvektoren, kalles clamped kurve)
     int FindKnotInterval(float x)
-    {  
+    {
         int my = RainPositions.Count - 1;
         while (x < Knots[my])
             my--;
@@ -286,11 +292,11 @@ public class Ball_physics : MonoBehaviour
             a.Add(Vector3.zero);
         }
 
-        for (int i = 0; i <= _degree ; i++)
+        for (int i = 0; i <= _degree; i++)
         {
             a[_degree - i] = RainPositions[my - i];
         }
-        
+
         for (int k = _degree; k > 0; k--)
         {
             int j = my - k;
@@ -300,9 +306,8 @@ public class Ball_physics : MonoBehaviour
                 float w = (x - Knots[j]) / (Knots[j + k] - Knots[j]);
                 a[i] = a[i] * (1 - w) + a[i + 1] * w;
             }
-
-            
         }
+
         return a[0];
     }
 
@@ -319,7 +324,7 @@ public class Ball_physics : MonoBehaviour
         {
             if (i < d + 1)
             {
-                Knots[i] = 0;  // knotene fra 0 til d er satt til 0
+                Knots[i] = 0; // knotene fra 0 til d er satt til 0
             }
             else if (i > n)
             {
@@ -376,26 +381,22 @@ public class Ball_physics : MonoBehaviour
         // sjekk om ballens vertikale posisjon er nær nok til overflaten av den genererte meshen
         return _currentfPosition.y <= surfaceHeight + _radius;
     }
-    
 
- void UpdateSplineRenderer()
-{
-    int numberOfPoints = _steps; // skifter antall punkter på linjen for å få den så smooth som mulig
-    splineRenderer.positionCount = numberOfPoints;
 
-    for (int i = 0; i < numberOfPoints; i++)
+    void UpdateSplineRenderer()
     {
-        float t = i / (float)(numberOfPoints - 1);
-        
-        Vector3 pointOnSpline = EvaluateBSplineSimple(t);
-        pointOnSpline.y += splineHeight;  // legger til en høyde på linjen sånn at den ikke er i bakken
+        int numberOfPoints = _steps; // skifter antall punkter på linjen for å få den så smooth som mulig
+        splineRenderer.positionCount = numberOfPoints;
 
-        // garanterer at den riktige posisjonen blir oppdatert
-        splineRenderer.SetPosition(i, pointOnSpline);
-        
+        for (int i = 0; i < numberOfPoints; i++)
+        {
+            float t = i / (float)(numberOfPoints - 1);
+
+            Vector3 pointOnSpline = EvaluateBSplineSimple(t);
+            pointOnSpline.y += splineHeight; // legger til en høyde på linjen sånn at den ikke er i bakken
+
+            // garanterer at den riktige posisjonen blir oppdatert
+            splineRenderer.SetPosition(i, pointOnSpline);
+        }
     }
-    
-}
-    
-  
 }

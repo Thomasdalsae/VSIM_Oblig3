@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mesh: {fileID: 0}
-  _radius: 5
+  _radius: 3
   _currentfPosition: {x: 0, y: 0, z: 0}
   _previousPosition: {x: 0, y: 0, z: 0}
   _currentVelocity: {x: 0, y: 0, z: 0}

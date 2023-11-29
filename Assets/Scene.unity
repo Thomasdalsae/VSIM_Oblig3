@@ -387,7 +387,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _Xsize: 50
   _Zsize: 50
-  AmountOfRainDrops: 5
+  AmountOfRainDrops: 10
   _raindropPrefab: {fileID: 8379537893554886575, guid: 067f1d24879ff16469e4850f9497ed18, type: 3}
   startLocation: {x: 0, y: 0, z: 0}
 --- !u!4 &815585921

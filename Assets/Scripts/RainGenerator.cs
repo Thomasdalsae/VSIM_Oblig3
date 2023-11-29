@@ -11,8 +11,7 @@ public class RainGenerator : MonoBehaviour
     [SerializeField] private int AmountOfRainDrops;
     [SerializeField] private GameObject _raindropPrefab;
     [SerializeField] private Vector3 startLocation;
-   // [SerializeField] private float minScale = 0.5f; // Minimum scale for raindrop
-    //[SerializeField] private float maxScale = 1.5f; // Maximum scale for raindrop
+    
 
     #endregion
 
@@ -39,10 +38,7 @@ public class RainGenerator : MonoBehaviour
 
             GameObject newRaindrop = Instantiate(_raindropPrefab, startLocation, Quaternion.identity);
 
-            // Generate a random scale for the raindrop
-           // float randomScale = UnityEngine.Random.Range(minScale, maxScale);
-            //newRaindrop.transform.localScale = new Vector3(randomScale, randomScale, randomScale);
-
+    
             // Generate a random delay between 0.1 to 1 second for the next raindrop
             float delay = UnityEngine.Random.Range(0.1f, 1.0f);
             yield return new WaitForSeconds(delay);

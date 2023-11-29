@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mesh: {fileID: 0}
-  _radius: 3
+  _radius: 5
   _currentfPosition: {x: 0, y: 0, z: 0}
   _previousPosition: {x: 0, y: 0, z: 0}
   _currentVelocity: {x: 0, y: 0, z: 0}
@@ -109,6 +109,9 @@ MonoBehaviour:
   _numKnots: 10
   splineHeight: 5
   shouldMove: 1
+  followSplineDistanceThreshold: 1
+  followSpeed: 5
+  rainBallSpline: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}
   _currentIndex: 0
   _previousIndex: 0
   _previousNormal: {x: 0, y: 0, z: 0}

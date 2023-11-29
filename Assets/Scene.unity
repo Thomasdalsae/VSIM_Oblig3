@@ -387,7 +387,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _Xsize: 50
   _Zsize: 50
-  AmountOfRainDrops: 10
+  AmountOfRainDrops: 25
   _raindropPrefab: {fileID: 8379537893554886575, guid: 067f1d24879ff16469e4850f9497ed18, type: 3}
   startLocation: {x: 0, y: 0, z: 0}
 --- !u!4 &815585921
@@ -399,7 +399,7 @@ Transform:
   m_GameObject: {fileID: 815585919}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 383.1, y: 627.5, z: 523.2}
+  m_LocalPosition: {x: 406.6, y: 705.8, z: 626.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -103,12 +103,15 @@ MonoBehaviour:
   _currentVelocity: {x: 0, y: 0, z: 0}
   _previousVelocity: {x: 0, y: 0, z: 0}
   Acceleration: {x: 0, y: 0, z: 0}
-  createTrail: 0
+  createTrail: 1
   _vassDragDT: 2
-  LineRenderer: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}
-  _numKnots: 10
+  splineRenderer: {fileID: 1900219176707836022, guid: cb6c6ca685a2fc14dbea90f70d1a298c, type: 3}
+  _steps: 150
   splineHeight: 5
   shouldMove: 1
+  RainPositions: []
+  _degree: 2
+  Knots: []
   _currentIndex: 0
   _previousIndex: 0
   _previousNormal: {x: 0, y: 0, z: 0}

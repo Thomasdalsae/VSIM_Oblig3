@@ -10,6 +10,8 @@ public class PCGenerator : MonoBehaviour
 
     void Start()
     {
+        // henter data fra pointData filen pg lager en punktsky med prefaben pointPrefab;
+        // tar å plasserer punktene i verdenen basert på x, y, z koordinatene i pointData filen
         if (pointData != null)
         {
             string[] lines = pointData.text.Split('\n');
@@ -28,12 +30,11 @@ public class PCGenerator : MonoBehaviour
 
                     Vector3 position = new Vector3(x, z, y);
 
-                    // Ensure the pointPrefab has a Renderer component
+                    // garanterer at pointPrefab har en renderer komponent  
                     Renderer prefabRenderer = pointPrefab.GetComponent<Renderer>();
 
                     if (prefabRenderer != null)
                     {
-                        // Enable GPU instancing on the sharedMaterial of the prefab's renderer
                         Material pointMaterial = prefabRenderer.sharedMaterial;
                         pointMaterial.enableInstancing = true;
 

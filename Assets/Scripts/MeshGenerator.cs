@@ -17,20 +17,13 @@ public class MeshGenerator : MonoBehaviour
     public GameObject cubePrefab;
     public GameObject centerCubePrefab;
     public int xGridCellCount = 5; //antall ruter i x retning
-    public int zGridCellCount = 5;  // antall ruter i z retning
+    public int zGridCellCount = 5; // antall ruter i z retning
     public TextAsset textAsset;
     public int gridSize = 5; // Resolution i meter  
-    
+
     public bool SeeCubes = false;
-    public float visualScale = 1.0f;
-
-    public int xSdize = 20;
-
-    public int zSize = 20;
-
     private Color[] colors;
     public Gradient gradient;
-
 
 
     private void Awake()
@@ -90,7 +83,6 @@ public class MeshGenerator : MonoBehaviour
 
     void CreateMesh(List<Vector3> coords, float minX, float minZ, float minY, float maxY)
     {
-        
         // lager mesh av koordinatene i coords listen
         float cellSizeX = (coords.Max(v => v.x) - minX) / xGridCellCount;
         float cellSizeZ = (coords.Max(v => v.z) - minZ) / zGridCellCount;
@@ -150,18 +142,18 @@ public class MeshGenerator : MonoBehaviour
         }
 
         colors = new Color[vertices.Length];
-      
+
         for (int i = 0; i < vertices.Length; i++)
         {
             float height = Mathf.InverseLerp(minY, maxY, vertices[i].y);
             colors[i] = gradient.Evaluate(height);
-            
         }
 
         if (SeeCubes)
         {
             InstantiateCubes(cellSizeX, cellSizeZ, minX, minZ);
         }
+
         UpdateMesh();
     }
 
@@ -179,7 +171,7 @@ public class MeshGenerator : MonoBehaviour
                     float centerZ = zPos + (cellSizeZ / 2);
 
                     // lager en blå kube i midten av hver rute
-                    
+
                     InstantiateCube(centerCubePrefab, new Vector3(centerX, 0, centerZ), true);
 
                     // lager en rød kube i hvert hjørne av hver rute
@@ -196,25 +188,25 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    
-void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = false)
-{
-    GameObject cube = Instantiate(prefab, position, Quaternion.identity);
 
-    cube.transform.SetParent(transform); // setter MeshGenerator som parent
+    void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = false)
+    {
+        GameObject cube = Instantiate(prefab, position, Quaternion.identity);
 
-    if (isCenterCube)
-    {
-        cube.transform.localScale =
-            new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // justerer størrelsen på midta kuben
-        cube.GetComponent<Renderer>().material.color = Color.blue; // skift farge på midta kuben til blå
+        cube.transform.SetParent(transform); // setter MeshGenerator som parent
+
+        if (isCenterCube)
+        {
+            cube.transform.localScale =
+                new Vector3(cubeSize * 1.5f, cubeSize * 1.5f, cubeSize * 1.5f); // justerer størrelsen på midta kuben
+            cube.GetComponent<Renderer>().material.color = Color.blue; // skift farge på midta kuben til blå
+        }
+        else
+        {
+            cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
+            cube.GetComponent<Renderer>().material.color = Color.red; // skift farge på hjørne kubene til rød
+        }
     }
-    else
-    {
-        cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
-        cube.GetComponent<Renderer>().material.color = Color.red;  // skift farge på hjørne kubene til rød
-    }
-}
 
 
     void UpdateMesh()
@@ -254,8 +246,7 @@ void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = fa
     }
 
     public float GetSurfaceHeight(Vector2 p)
-    { 
-        
+    {
         //  finner høyden på terrenget i punktet p ved hjelp av barysentriske koordinater.
         for (int i = 0; i < triangles.Length; i += 3)
         {
@@ -277,6 +268,6 @@ void InstantiateCube(GameObject prefab, Vector3 position, bool isCenterCube = fa
             }
         }
 
-        return 0.0f;   //  vist pungt ikke finnes returner 0
+        return 0.0f; //  vist pungt ikke finnes returner 0
     }
 }

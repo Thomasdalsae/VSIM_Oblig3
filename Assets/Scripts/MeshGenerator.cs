@@ -86,7 +86,8 @@ public class MeshGenerator : MonoBehaviour
         // lager mesh av koordinatene i coords listen
         float cellSizeX = (coords.Max(v => v.x) - minX) / xGridCellCount;
         float cellSizeZ = (coords.Max(v => v.z) - minZ) / zGridCellCount;
-
+         
+        // antall vertices og antall trekanter
         int vertexCount = (xGridCellCount + 1) * (zGridCellCount + 1);
         int triangleCount = xGridCellCount * zGridCellCount * 2 * 3;
 
@@ -96,6 +97,8 @@ public class MeshGenerator : MonoBehaviour
         int vert = 0;
         int tris = 0;
 
+        
+        
         for (int z = 0; z <= zGridCellCount; z++)
         {
             for (int x = 0; x <= xGridCellCount; x++)
@@ -106,7 +109,7 @@ public class MeshGenerator : MonoBehaviour
                 float centerZ = zPos + (cellSizeZ / 2);
                 float totalHeight = 0f;
                 int pointCount = 0;
-
+                
                 foreach (Vector3 point in coords)
                 {
                     if (point.x >= xPos && point.x < (xPos + cellSizeX) &&
@@ -116,10 +119,9 @@ public class MeshGenerator : MonoBehaviour
                         pointCount++;
                     }
                 }
-
                 float averageHeight = (pointCount > 0) ? totalHeight / pointCount : 0f;
                 vertices[vert] = new Vector3(centerX, averageHeight, centerZ);
-
+                
                 if (x < xGridCellCount && z < zGridCellCount)
                 {
                     int topLeft = vert;

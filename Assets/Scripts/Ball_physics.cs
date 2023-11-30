@@ -280,7 +280,8 @@ public class Ball_physics : MonoBehaviour
         return my;
     }
 
-    //Algoritmen nedenfor returnerer en tredimensjonal vektor for gitt parameterverdi og er altså for en splinekurve i R^3
+    //Algoritmen nedenfor returnerer en tredimensjonal vektor for gitt parameterverdi
+    //og er altså for en splinekurve i R^3
     // (dvs. en kurve i rommet). Algoritmen er enkel å utvide til høyere dimensjoner.
     public Vector3 EvaluateBSplineSimple(float x)
     {

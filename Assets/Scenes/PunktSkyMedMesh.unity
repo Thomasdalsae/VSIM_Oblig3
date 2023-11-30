@@ -209,7 +209,7 @@ MonoBehaviour:
   zGridCellCount: 5
   textAsset: {fileID: 4900000, guid: eba191e0ebbbdeb44a69c1cd7523ca40, type: 3}
   gridSize: 25
-  SeeCubes: 0
+  SeeCubes: 1
   gradient:
     serializedVersion: 2
     key0: {r: 0, g: 0.35106063, b: 1, a: 1}
